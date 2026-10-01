@@ -1,0 +1,1510 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>IJAIO Sprint Reviewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one centred study column with a sticky track + tab bar; each concept is a card that reads top to bottom: big idea, analogy, explanation, picture, worked example, try it, quick check. */
+:root{
+  --bg:#F3F5F9; --surface:#FFFFFF; --sunk:#E8ECF3; --ink:#131A2B; --muted:#586379; --line:#D5DBE6;
+  --accent:#0B6E69; --accent-ink:#FFFFFF; --accent-soft:#D7EEEC; --hi:#F2B33D; --hi-soft:#FCEFD2;
+  --good:#1E7A44; --good-soft:#DDF1E4; --bad:#B4323C; --bad-soft:#F8DEE0;
+  --p-rep:#2E66D0; --p-lrn:#0C8566; --p-gen:#7B49CC; --p-int:#C8661E; --p-res:#BE3456;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1420; --surface:#171E2D; --sunk:#202839; --ink:#E7ECF5; --muted:#9AA6BC; --line:#2C3649;
+  --accent:#3FC2B9; --accent-ink:#06201E; --accent-soft:#163A39; --hi:#F2B94F; --hi-soft:#3A2F17;
+  --good:#5DD08C; --good-soft:#16352A; --bad:#F07A83; --bad-soft:#3D1E24;
+  --p-rep:#6E9BF0; --p-lrn:#3FC79E; --p-gen:#AE8BEF; --p-int:#F09A55; --p-res:#F07595;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1420; --surface:#171E2D; --sunk:#202839; --ink:#E7ECF5; --muted:#9AA6BC; --line:#2C3649;
+  --accent:#3FC2B9; --accent-ink:#06201E; --accent-soft:#163A39; --hi:#F2B94F; --hi-soft:#3A2F17;
+  --good:#5DD08C; --good-soft:#16352A; --bad:#F07A83; --bad-soft:#3D1E24;
+  --p-rep:#6E9BF0; --p-lrn:#3FC79E; --p-gen:#AE8BEF; --p-int:#F09A55; --p-res:#F07595;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:980px;margin:0 auto}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:20px;font-weight:700}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit;cursor:pointer}
+.eyebrow,.lbl{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+
+header.top{padding-block:28px 18px;display:grid;gap:14px}
+.spec{display:flex;flex-wrap:wrap;gap:8px}
+.spec span{font-family:var(--f-mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.spec b{color:var(--ink);font-weight:600}
+.lede{color:var(--muted);max-width:62ch}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font-weight:700;font-size:14.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;padding:8px 12px;border-radius:8px;font-weight:700;color:var(--muted);font-size:15px}
+.tabs button[aria-selected="true"]{color:var(--ink);background:var(--surface);box-shadow:inset 0 -3px 0 var(--accent)}
+
+main{padding-top:22px}
+.section-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--pc)}
+.chip::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--pc)}
+[data-p="rep"]{--pc:var(--p-rep)} [data-p="lrn"]{--pc:var(--p-lrn)} [data-p="gen"]{--pc:var(--p-gen)} [data-p="int"]{--pc:var(--p-int)} [data-p="res"]{--pc:var(--p-res)}
+
+.howto{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.howto div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;font-size:14.5px}
+.howto b{display:block;font-family:var(--f-display);font-size:15.5px}
+@media (max-width:760px){.howto{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:26px}
+.plan div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.plan h4{font-size:15.5px;margin-bottom:4px}
+.plan p{font-size:14.5px;color:var(--muted)}
+@media (max-width:700px){.plan{grid-template-columns:1fr}}
+
+.pnav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.pnav a{text-decoration:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px 4px 10px;display:inline-flex;gap:8px;align-items:center}
+.pnav small{font-family:var(--f-mono);color:var(--muted);font-size:11.5px}
+
+.pillar{margin-bottom:34px;scroll-margin-top:120px}
+.pillar > .ph{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--pc)}
+.pillar > .ph .n{font-family:var(--f-mono);font-size:13px;color:var(--pc);font-weight:600;flex:none}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:16px;margin-bottom:16px;scroll-margin-top:120px}
+.note.done{border-color:var(--good)}
+.nhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.nhead h3{flex:1 1 260px}
+.got{display:inline-flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:14px;font-weight:700;background:var(--surface)}
+.got[aria-pressed="true"]{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.bigidea{font-family:var(--f-display);font-size:19px;font-weight:600;line-height:1.35;max-width:60ch;padding-left:14px;border-left:4px solid var(--pc)}
+.like{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:8px;padding:10px 12px;max-width:72ch}
+.like .lbl{color:var(--accent);flex:none;padding-top:3px}
+@media (max-width:520px){.like{flex-direction:column;gap:2px}}
+.body{display:grid;gap:10px;max-width:70ch;min-width:0}
+.body ul,.body ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.terms{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:6px 14px;margin:0;font-size:15px}
+.terms dt{font-weight:700}
+.terms dd{margin:0;color:var(--muted)}
+@media (max-width:520px){.terms{grid-template-columns:1fr}.terms dd{margin-bottom:6px}}
+.trap{background:var(--hi-soft);border-radius:8px;padding:10px 12px;font-size:15px}
+.trap .lbl{color:var(--ink);margin-right:6px}
+.formula{font-family:var(--f-mono);background:var(--sunk);border-radius:6px;padding:8px 10px;overflow-x:auto;font-size:14px}
+.tablewrap{overflow-x:auto}
+table.mini{border-collapse:collapse;font-size:14.5px}
+table.mini th,table.mini td{border:1px solid var(--line);padding:5px 9px;text-align:left;vertical-align:top}
+table.mini th{background:var(--sunk);font-weight:700}
+table.mini td.num{font-family:var(--f-mono);text-align:center}
+
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.trio > div{border:1px solid var(--line);border-radius:8px;padding:12px;display:grid;gap:6px;align-content:start;background:var(--bg)}
+.trio b{font-family:var(--f-display);font-size:16.5px}
+@media (max-width:700px){.trio{grid-template-columns:1fr}}
+
+.figure{display:grid;gap:6px}
+.flow{display:flex;align-items:stretch;gap:6px}
+.fbox{flex:1 1 0;min-width:0;border:1.5px solid var(--pc);border-radius:8px;padding:9px 10px;background:var(--surface);display:grid;gap:2px;align-content:start}
+.fbox b{font-family:var(--f-display);font-size:15px;color:var(--pc)}
+.fbox span{font-size:13.5px}
+.farrow{align-self:center;color:var(--muted);font-size:20px;flex:none;line-height:1}
+.floop{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);text-align:center}
+@media (max-width:680px){.flow{flex-direction:column}.flow .farrow{transform:rotate(90deg)}}
+.cmgrid{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:4px;max-width:520px;font-size:14px}
+.cmgrid .h{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:4px}
+.cmgrid .c{border-radius:8px;padding:10px;display:grid;gap:2px}
+.cmgrid .c b{font-family:var(--f-display);font-size:17px}
+.cmgrid .ok{background:var(--good-soft)} .cmgrid .no{background:var(--bad-soft)}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{display:block;max-width:100%;height:auto}
+.diff{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.diff figure{margin:0;display:grid;gap:3px;justify-items:center;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.diff canvas{width:72px;height:72px;border-radius:6px;image-rendering:pixelated;border:1px solid var(--line)}
+
+.worked{border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:8px}
+.worked .lbl{color:var(--pc)}
+.worked .wq{font-weight:700}
+.worked ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.worked ol:empty{display:none}
+.worked li{font-family:var(--f-mono);font-size:14px}
+.worked li.final{font-weight:600;color:var(--good)}
+
+.widget{border:1px dashed var(--line);border-radius:8px;padding:14px;display:grid;gap:10px;background:var(--bg);min-width:0}
+.widget .wt{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],input[type=number],textarea,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
+input[type=number]{width:84px}
+textarea{width:100%;resize:vertical}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:8px;font-weight:700;font-size:14.5px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{padding:5px 10px;font-size:13.5px}
+.tok{display:inline-flex;flex-direction:column;align-items:center;border:1px solid var(--line);border-radius:6px;padding:3px 7px;background:var(--surface);font-family:var(--f-mono);font-size:13px}
+.tok small{color:var(--muted);font-size:11px}
+.toks{display:flex;flex-wrap:wrap;gap:6px}
+.out{font-family:var(--f-mono);font-size:14px;background:var(--sunk);border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.pgrid{display:grid;grid-template-columns:repeat(6,30px);gap:2px}
+.pgrid button{width:30px;height:30px;border:1px solid var(--line);border-radius:3px;padding:0}
+.ngrid{display:grid;grid-template-columns:repeat(6,auto);gap:2px 8px;font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums;justify-content:start}
+.bars{display:grid;gap:6px}
+.barrow{display:grid;grid-template-columns:110px minmax(0,1fr) 70px;gap:8px;align-items:center;font-size:14px}
+.barrow .track{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden;display:block}
+.barrow .fill{height:100%;background:var(--accent);border-radius:6px;transition:width .3s;display:block}
+.barrow > span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.cm{display:grid;grid-template-columns:auto auto auto;gap:4px;align-items:center;justify-content:start;font-size:14px}
+.cm .h{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:center;padding:2px 6px}
+.cm input{width:70px}
+
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;margin-bottom:12px}
+.check{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.qtop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.qnum{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.qtext{font-size:17px;font-weight:700;max-width:70ch}
+.opts{display:grid;gap:8px}
+.opts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.opts.two{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;width:100%}
+.opt .k{font-family:var(--f-mono);font-weight:600;color:var(--muted);min-width:18px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.why{border-left:3px solid var(--accent);padding:4px 0 4px 12px;font-size:15.5px}
+.why b{margin-right:4px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.filters button{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px;font-size:14px}
+.filters button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.filters button[aria-pressed="true"] .chip{color:var(--bg)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;margin-bottom:16px}
+.progress{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.progress div{height:100%;background:var(--accent);transition:width .25s}
+.score{font-family:var(--f-display);font-size:44px;font-weight:800;line-height:1}
+
+.card{min-height:220px;border:1.5px solid var(--pc);border-radius:14px;background:var(--surface);display:grid;place-items:center;align-content:center;text-align:center;padding:28px 20px;gap:12px;width:100%}
+.card .term{font-family:var(--f-display);font-size:clamp(26px,5vw,36px);font-weight:800}
+.card .def{font-size:19px;max-width:44ch}
+.card .tap{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+
+.timer{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:15;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:10px 14px;margin-bottom:16px}
+.timer .clock{font-family:var(--f-mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.timer .clock.low{color:var(--hi)}
+.timer .btn{background:var(--bg);color:var(--ink);border-color:var(--bg)}
+.task{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:14px;margin-bottom:14px}
+.scenario{background:var(--sunk);border-radius:8px;padding:12px;font-size:15px;display:grid;gap:8px;overflow-x:auto}
+.scenario table{border-collapse:collapse;font-size:14px}
+.scenario th,.scenario td{border:1px solid var(--line);padding:4px 8px;text-align:left}
+.part{display:grid;gap:8px}
+.part .pl{font-weight:700}
+.mp{display:grid;gap:6px;background:var(--good-soft);border-radius:8px;padding:10px 12px}
+.mp label{display:flex;gap:8px;align-items:flex-start;font-size:15px}
+.mp input{margin-top:4px;accent-color:var(--good)}
+.mp pre{font-family:var(--f-mono);font-size:13px;background:var(--surface);border-radius:6px;padding:8px;overflow-x:auto;margin:4px 0}
+.sec{font-family:var(--f-display);font-size:20px;font-weight:700;margin:22px 0 10px}
+
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;margin-bottom:18px}
+.editor{font-family:var(--f-mono);font-size:13.5px;line-height:1.5;min-height:260px;tab-size:4;white-space:pre;overflow-x:auto;background:var(--sunk);border:1px solid var(--line)}
+.result{display:grid;gap:4px}
+.pass{color:var(--good);font-weight:700}
+.fail{color:var(--bad);font-weight:700}
+.loading{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">International Junior AI Olympiad 2026 · GIS training squad</span>
+    <h1>IJAIO Sprint Reviewer</h1>
+    <p class="lede" id="lede"></p>
+    <div class="spec" id="spec"></div>
+  </header>
+
+  <div class="bar">
+    <div class="seg" role="group" aria-label="Choose your level">
+      <button data-track="up">Year 6 · Upper Primary</button>
+      <button data-track="ls">Years 7–8 · Lower Secondary</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="learn">Learn</button>
+      <button role="tab" data-tab="cards">Flashcards</button>
+      <button role="tab" data-tab="drill">Drill</button>
+      <button role="tab" data-tab="mock">Mock exam</button>
+      <button role="tab" data-tab="lab" id="tab-lab">Python lab</button>
+    </div>
+  </div>
+
+  <main id="main"></main>
+</div>
+
+<script>
+/* ================= content ================= */
+const PILLARS = {
+  rep:{name:"Representation", q:"How does AI turn the world into numbers?"},
+  lrn:{name:"Learning", q:"How does AI learn from examples?"},
+  gen:{name:"Generation", q:"How does AI make new text and images?"},
+  int:{name:"Interaction & Agency", q:"How do we talk to AI, and how does it act?"},
+  res:{name:"Responsibility", q:"How do we use AI safely and fairly?"}
+};
+const PORDER = ["rep","lrn","gen","int","res"];
+
+const TRACKS = {
+  up:{
+    label:"Upper Primary", grades:"Year 6 (Grades 4–6 division)",
+    lede:"Every idea is explained in simple steps with a picture, an example and a quick check. Learn the five pillars, practise, then sit the mock.",
+    spec:[["60","minutes"],["30","MCQ · 60 marks"],["2","structured · 40 marks"],["0","marks lost for wrong answers"]],
+    minutes:60, mcqCount:30, mcqMarks:2,
+    plan:[
+      ["Day 1 · Understand","Learn: Representation and Learning. Do every worked example and quick check. Flashcards for 10 minutes."],
+      ["Day 2 · Practise","Learn: Generation, Interaction and Responsibility. Drill your weakest pillar until you score 8/10."],
+      ["Day 3 · Exam run","Sit the full mock in 60 minutes. Read every explanation you got wrong, then flashcards once more."]
+    ]
+  },
+  ls:{
+    label:"Lower Secondary", grades:"Years 7–8 (Grades 7–8 division)",
+    lede:"Every idea is broken into a big idea, a picture, a worked example and a quick check. Learn the mechanics, practise in Python, then sit the 90-minute mock.",
+    spec:[["90","minutes"],["20","MCQ · 40 marks"],["3","structured / Python · 60 marks"],["0","marks lost for wrong answers"]],
+    minutes:90, mcqCount:20, mcqMarks:2,
+    plan:[
+      ["Day 1 · Mechanics","Learn: Representation and Learning. Python labs 1, 3 and 5. Flashcards for 10 minutes."],
+      ["Day 2 · Models and agents","Learn: Generation, Interaction and Responsibility. Labs 2 and 4. Drill your weakest pillar."],
+      ["Day 3 · Exam run","Full 90-minute mock with Python ready. Mark Section B honestly, then re-read the notes you missed."]
+    ]
+  }
+};
+
+function flow(items, opts={}){
+  return `<div class="figure"><div class="flow">${items.map((it,i)=>`${i?'<span class="farrow" aria-hidden="true">→</span>':""}<div class="fbox"><b>${it[0]}</b><span>${it[1]}</span></div>`).join("")}</div>${opts.loop?`<div class="floop">↻ ${opts.loop}</div>`:""}</div>`;
+}
+const DIAGRAMS = {
+  textPipe:()=>flow([["Text","The cat sat."],["Tokens","the | cat | sat | ."],["Token IDs","0 · 1 · 2 · 3"],["Embeddings","each ID → a list of numbers"]]),
+  trainTest:()=>flow([["1 · Collect","lots of examples, each with a label"],["2 · Train","the AI finds the pattern"],["3 · Test","try NEW examples it has never seen"],["4 · Improve","mistakes? add more varied examples"]],{loop:"go back to step 2 and train again"}),
+  neuronUP:()=>flow([["Inputs","sunny 1 · homework 1 · rain 0"],["× Weights","+3 · +2 · −4"],["Add up","3 + 2 + 0 = 5"],["Compare","is 5 ≥ threshold 2?"],["Output","YES, play outside"]]),
+  neuronLS:()=>flow([["Inputs","x1 = 2, x2 = 3"],["× Weights","2 × 0.5 = 1 · 3 × (−1) = −3"],["+ Bias","z = 1 − 3 + 1 = −1"],["Activation","ReLU(−1) = max(0, −1)"],["Output","0"]]),
+  pda:()=>flow([["Perceive","sensors collect information: camera, microphone, touch"],["Decide","the AI model chooses what to do"],["Act","move, speak, or show an answer"]],{loop:"repeat, again and again"}),
+  pipeline:()=>flow([["Collect","gather and label data"],["Split","80% train · 20% test"],["Train","model learns from the 80%"],["Test","predict the hidden 20%"],["Evaluate","accuracy, confusion matrix"]]),
+  agentLoop:()=>flow([["Observe","read the request"],["Plan","which steps? which tools?"],["Act","call a tool (calculator, search, calendar)"],["Observe result","read what the tool returned"],["Answer","or re-plan and loop again"]],{loop:"loop until the task is done"}),
+  biasChain:()=>flow([["Data","90% of face photos are light-skinned"],["Learning","model learns mostly those faces"],["Behaviour","more errors on darker-skinned faces"],["Harm","some people get locked out unfairly"]]),
+  cm:()=>`<div class="cmgrid"><span></span><span class="h">AI said YES</span><span class="h">AI said NO</span>
+    <span class="h">Really YES</span><div class="c ok"><b>TP</b><span>true positive · caught it</span></div><div class="c no"><b>FN</b><span>false negative · missed it</span></div>
+    <span class="h">Really NO</span><div class="c no"><b>FP</b><span>false positive · false alarm</span></div><div class="c ok"><b>TN</b><span>true negative · correctly ignored</span></div></div>`,
+  embedMap:()=>{
+    const pts=[["cat",50,58,"rep"],["kitten",86,80,"rep"],["dog",40,104,"rep"],["puppy",80,126,"rep"],["car",246,48,"int"],["bus",282,78,"int"],["train",240,104,"int"],["happy",160,168,"gen"],["joyful",198,186,"gen"],["glad",140,196,"gen"]];
+    const groups=[["animals",72,92,64,54,"rep"],["vehicles",268,76,58,46,"int"],["feelings",178,182,66,32,"gen"]];
+    return `<div class="svgwrap"><svg viewBox="0 0 360 236" width="360" role="img" aria-label="Words placed on a map: animals together, vehicles together, feelings together">
+      ${groups.map(g=>`<ellipse cx="${g[1]}" cy="${g[2]}" rx="${g[3]}" ry="${g[4]}" style="fill:var(--p-${g[5]});fill-opacity:.12;stroke:var(--p-${g[5]});stroke-opacity:.5"/>`).join("")}
+      ${pts.map(p=>`<circle cx="${p[1]}" cy="${p[2]}" r="4" style="fill:var(--p-${p[3]})"/><text x="${p[1]+7}" y="${p[2]+4}" style="fill:var(--ink);font:13px sans-serif">${p[0]}</text>`).join("")}
+      <text x="8" y="230" style="fill:var(--muted);font:11px monospace">close together = similar meaning</text></svg></div>`;
+  },
+  diffusion:()=>`<div class="diff" data-diffusion>${["step 0 · noise","step 1","step 2","step 3","step 4 · image"].map((l,i)=>`<figure><canvas width="48" height="48" data-n="${i}"></canvas><figcaption>${l}</figcaption></figure>${i<4?'<span class="farrow" aria-hidden="true">→</span>':""}`).join("")}</div><p class="muted" style="font-size:14px">Prompt: "a sun over green hills". Each step removes some noise.</p>`
+};
+const DIAGRAM_AFTER_BODY = ["trainTest","neuronUP"];
+
+const NOTES = {
+up:[
+ {p:"rep",title:"Computers turn everything into numbers",
+  big:"A computer can only work with numbers, so words, pictures and sounds are changed into numbers first.",
+  like:"A secret code where every letter has its own number.",
+  body:`<p>AI is a <b>computer program made by people</b>. It is not alive, and it cannot see or read like you do. It only works with numbers.</p>
+  <ul><li><b>Words</b> become numbers with a code such as A=1, B=2 … Z=26.</li>
+  <li><b>Pictures</b> are grids of tiny squares called <b>pixels</b>. Each pixel's colour is a number.</li></ul>`,
+  worked:{q:"Turn the word CAB into numbers (A=1 … Z=26).",s:["C is the 3rd letter → 3","A is the 1st letter → 1","B is the 2nd letter → 2","Answer: CAB = 3, 1, 2"]},
+  widget:"encoder",
+  terms:[["Pixel","One tiny square in a picture. Its colour is stored as a number."],["Encode","Change into a code, e.g. letters → numbers."],["Decode","Change back, e.g. numbers → letters."]],
+  check:["Using A=1 … Z=26, what is <b>DOG</b>?",["4, 15, 7","4, 14, 7","3, 15, 7","4, 15, 8"],0,"D is the 4th letter, O the 15th, G the 7th."]},
+ {p:"rep",title:"Describing things with number-lists",
+  big:"We can describe anything with a list of numbers. Similar things have similar lists.",
+  like:"A football player card: speed 8, power 6, skill 9. You compare players by comparing their numbers.",
+  body:`<p>First choose some <b>features</b> (things you can measure). Then write each object as a <b>number-list</b>.</p>
+  <p>Animals as <code>[legs, has fur, can fly]</code>, where 1 = yes and 0 = no:</p>
+  <div class="tablewrap"><table class="mini"><tr><th>Animal</th><th>legs</th><th>has fur</th><th>can fly</th></tr><tr><td>dog</td><td class="num">4</td><td class="num">1</td><td class="num">0</td></tr><tr><td>cat</td><td class="num">4</td><td class="num">1</td><td class="num">0</td></tr><tr><td>bird</td><td class="num">2</td><td class="num">0</td><td class="num">1</td></tr></table></div>
+  <p>To compare two lists, find the <b>difference</b> in each position and add them up. <b>Smaller total = more similar.</b></p>`,
+  worked:{q:"How different are dog [4, 1, 0] and bird [2, 0, 1]?",s:["Legs: 4 and 2 → difference 2","Fur: 1 and 0 → difference 1","Fly: 0 and 1 → difference 1","Total = 2 + 1 + 1 = 4","Dog and cat have total 0, so a dog is far more like a cat than a bird."]},
+  terms:[["Feature","Something you can measure, like colour, size or number of legs."],["Number-list","A list of feature values that describes one thing."],["Similar","Close numbers, small total difference."]],
+  trap:"The list only knows the features you chose. Dog and cat look identical here because there is no feature like \"barks\".",
+  check:["Which list is <b>most similar</b> to [4, 1, 0]?",["[4, 1, 1]","[2, 0, 1]","[0, 0, 0]","[8, 2, 0]"],0,"Total differences: [4,1,1] → 1, [2,0,1] → 4, [0,0,0] → 5, [8,2,0] → 5. The smallest wins."]},
+ {p:"rep",title:"Datasets, labels and tokens",
+  big:"AI learns from a dataset: lots of examples, each with the right answer (a label).",
+  like:"A pile of flashcards with a picture on the front and the answer on the back.",
+  body:`<p>A <b>dataset</b> is a collection of examples. In a <b>labelled</b> dataset each example has its correct answer, e.g. a photo with the label "cat".</p>
+  <p>A dataset is <b>fair</b> (balanced) when every group has enough examples. With 95 cat photos and only 5 dog photos, the AI will be bad at dogs.</p>
+  <p><b>Tokenising</b> means cutting a sentence into pieces called <b>tokens</b>. By hand, cut at every word and every punctuation mark.</p>`,
+  worked:{q:"Tokenise: Hello, Anan!",s:["Words: Hello, Anan","Punctuation: , and !","In order: Hello | , | Anan | !","Answer: 4 tokens"]},
+  terms:[["Dataset","A collection of examples."],["Label","The correct answer attached to an example."],["Balanced","Each group has about the same number of examples."],["Token","One piece of text: a word or a punctuation mark."]],
+  trap:"Punctuation marks are tokens too. Count them!",
+  check:["How many tokens are in <code>We won the match!</code>?",["4","5","6","3"],1,"We | won | the | match | ! = 5 tokens."]},
+ {p:"lrn",title:"Rules or learning?",
+  big:"A rule is written by a person. Machine learning finds the pattern by itself from many examples.",
+  like:"Following a recipe (rules) versus learning to spot ripe mangoes after seeing hundreds of them (learning).",
+  body:`<p><b>Rule-based:</b> a person writes IF … THEN … <i>IF the email says "WIN MONEY" THEN it is spam.</i></p>
+  <p><b>Machine learning:</b> show the computer 10,000 emails already marked spam or not spam. It works out the pattern itself.</p>
+  <p>An AI that sorts things into groups is called a <b>classifier</b>. Building one has four steps:</p>`,
+  diagram:"trainTest",
+  terms:[["Classifier","An AI that sorts things into groups."],["Training","Learning from labelled examples."],["Testing","Checking the AI on new examples it has never seen."]],
+  trap:"Always test with NEW examples. Testing with the training examples is like testing you with the exact questions you practised.",
+  check:["Which one uses <b>machine learning</b>?",["A street light that switches on at 6 pm","A photo app that learned to spot faces from millions of photos","A calculator","A doorbell"],1,"It learned from examples. The others follow fixed rules."]},
+ {p:"lrn",title:"Three ways a machine can learn",
+  big:"With answers (supervised), without answers (clustering), or with rewards (reinforcement).",
+  body:`<div class="trio">
+   <div><b>Supervised</b><p>Learns from examples that have answers.</p><p class="muted">Like studying with an answer key.</p><p><i>Photos labelled "cat" or "dog".</i></p></div>
+   <div><b>Clustering</b><p>No answers. The AI puts similar things into groups by itself.</p><p class="muted">Like sorting a pile of Lego by colour without being told how.</p><p><i>Grouping songs that sound alike.</i></p></div>
+   <div><b>Reinforcement</b><p>Learns by trial and error. Good moves earn a reward.</p><p class="muted">Like training a puppy with treats.</p><p><i>A game robot that earns points.</i></p></div></div>`,
+  terms:[["Clustering","Grouping similar things without labels."],["Reward","Points given for a good action."]],
+  trap:"Look for the clue word. Labels → supervised. No labels, groups → clustering. Reward, points, trial and error → reinforcement.",
+  check:["A robot gets +10 points every time it scores a goal and slowly gets better. Which type of learning?",["Supervised","Clustering","Reinforcement","Rule-based"],2,"Points (rewards) and trial and error mean reinforcement learning."]},
+ {p:"lrn",title:"A single neuron makes a decision",
+  big:"A neuron multiplies each input by its weight, adds them up, and says YES if the total reaches the threshold.",
+  like:"A judge giving points: sunny is worth +3, homework done +2, rain −4. Enough points means YES.",
+  body:`<p>Inputs are usually <b>1</b> (yes) or <b>0</b> (no). Each input has a <b>weight</b> that shows how important it is. A <b>negative weight</b> pushes the answer towards NO.</p>`,
+  diagram:"neuronUP",
+  worked:{q:"Sunny = 1, homework done = 1, raining = 0. Weights +3, +2, −4. Threshold 2. Play outside?",s:["Sunny: 1 × 3 = 3","Homework: 1 × 2 = 2","Raining: 0 × (−4) = 0","Total = 3 + 2 + 0 = 5","5 is at least 2 → YES, play outside"]},
+  widget:"neuronUP",
+  terms:[["Weight","How important an input is. Negative weights push towards NO."],["Threshold","The total needed to say YES."]],
+  trap:"An input of 0 adds nothing, whatever its weight. Write out every multiplication so you don't lose a minus sign.",
+  check:["Inputs 1, 1, 1 with weights +3, +2, −4 and threshold 2. Decision?",["Total 9, YES","Total 1, NO","Total 5, YES","Total −1, NO"],1,"3 + 2 − 4 = 1, and 1 is less than 2, so NO."]},
+ {p:"gen",title:"How a chatbot writes: next-word prediction",
+  big:"A chatbot writes one word at a time, each time choosing a word that often comes next.",
+  like:"The word suggestions above your phone keyboard, but much bigger.",
+  body:`<p>The chatbot has read huge amounts of text. When it writes, it asks: <i>"After these words, what usually comes next?"</i> It adds that word, then asks again.</p>
+  <p>After <i>"The cat sat on the …"</i> the word <b>mat</b> is very likely.</p>
+  <p>To predict from a small text yourself: find every place the word appears, write down the word straight after it, and <b>count</b>. The most frequent one wins.</p>`,
+  worked:{q:"Text: I like cats. I like dogs. I like cats. What comes after \"like\"?",s:["Find every \"like\": there are 3","Words straight after it: cats, dogs, cats","Count: cats = 2, dogs = 1","Prediction: cats"]},
+  widget:"nextword",
+  terms:[["Prediction","A best guess of what comes next."],["Generation","Making something new: text or images."]],
+  check:["Text: <i>my dog runs. my dog eats. my cat sleeps.</i> What comes after <b>my</b> most often?",["cat","dog","runs","sleeps"],1,"After \"my\": dog, dog, cat. dog = 2 wins."]},
+ {p:"gen",title:"Making new things or finding things?",
+  big:"Generative AI makes something new. Search (retrieval) finds something that already exists.",
+  like:"Asking an artist to paint a new picture versus looking for a picture in the library.",
+  body:`<div class="tablewrap"><table class="mini"><tr><th>Generation (new)</th><th>Retrieval (existing)</th></tr>
+  <tr><td>A chatbot writing a new poem</td><td>A search engine finding a web page</td></tr>
+  <tr><td>An image generator drawing "a cat astronaut on the Moon"</td><td>A library catalogue finding a book</td></tr></table></div>
+  <p>An <b>image generator</b> makes a new picture from a text description called a <b>prompt</b>.</p>`,
+  terms:[["Retrieval","Finding information that already exists."],["Prompt","The words you give an AI to tell it what you want."]],
+  trap:"If the thing already exists somewhere and is being found, it is retrieval.",
+  check:["Which is <b>retrieval</b>?",["An AI drawing a new dragon","A search engine finding an old news article","A chatbot writing a story","An AI composing a song"],1,"The article already exists; it is being found."]},
+ {p:"gen",title:"Writing a great prompt",
+  big:"A great prompt has three parts: a role, a clear instruction, and an example.",
+  like:"Giving directions to a new classmate: who to be, what to do, and an example of what you mean.",
+  body:`<div class="tablewrap"><table class="mini"><tr><th>Part</th><th>What it does</th><th>Example</th></tr>
+  <tr><td><b>Role</b></td><td>Who the AI should be</td><td>You are a friendly science teacher.</td></tr>
+  <tr><td><b>Instruction</b></td><td>What to do, how long, for whom</td><td>Explain how plants make food in 3 short sentences for a 10-year-old.</td></tr>
+  <tr><td><b>Example</b></td><td>Shows the style you want</td><td>Start like this: "Plants are like tiny kitchens…"</td></tr></table></div>
+  <p><b>Weak:</b> <i>tell me about plants</i>. <b>Strong:</b> all three parts together.</p>`,
+  terms:[["Role","Who the AI should act as."],["Instruction","The task, length and audience."]],
+  trap:"A clear instruction says what to do, how long, and who it is for.",
+  check:["<i>\"Explain volcanoes in 3 sentences for a Year 6 student.\"</i> Which part is missing?",["Instruction","Role","Length","Audience"],1,"It has an instruction, length and audience, but no role (who the AI should be)."]},
+ {p:"int",title:"Perceive, decide, act",
+  big:"AI helpers sense the world, decide what to do, then act. Then they do it again.",
+  like:"Crossing the road: look (perceive), choose when it is safe (decide), walk (act).",
+  diagram:"pda",
+  body:`<p><b>Example:</b> a robot vacuum <b>perceives</b> a wall with its bump sensor, <b>decides</b> to turn, and <b>acts</b> by turning its wheels.</p>
+  <p>When you draw an AI helper, show the <b>inputs</b> → the <b>model</b> → the <b>outputs</b> → the <b>user</b>.</p>`,
+  terms:[["Sensor","Collects information: camera, microphone, touch sensor."],["Failure case","A situation where the AI gets it wrong."]],
+  trap:"For any failure case, always suggest a fix: a better sensor, more varied training data, or a human check.",
+  check:["A self-driving car sees a red light. Which step is <b>decide</b>?",["The camera takes a picture","The AI chooses to stop","The brakes press","The light turns green"],1,"Deciding means choosing what to do."]},
+ {p:"res",title:"Don't just trust it, check it",
+  big:"AI can sound sure and still be wrong. Always check important facts.",
+  like:"A friend who always answers quickly and confidently, even when they are guessing.",
+  body:`<p>A <b>hallucination</b> is when AI gives an answer that sounds confident but is made up. It happens because AI predicts likely words; it does not check facts.</p>
+  <p><b>How to check:</b></p><ol><li>Find two reliable sources: official websites, books, encyclopaedias.</li><li>Ask a teacher or trusted adult.</li><li>Take extra care with numbers, dates, names and quotes.</li></ol>
+  <p><b>Be honest:</b> if AI helped with your work, say which parts.</p>`,
+  terms:[["Hallucination","Confident AI output that is false or made up."],["Verify","Check against reliable sources."]],
+  trap:"\"It sounded sure\" is never a reason to trust it.",
+  check:["A chatbot says the Mekong River is in Africa. What should you do?",["Believe it because it sounded sure","Check an atlas or a reliable website","Ask the same chatbot again","Share it with friends"],1,"Verify with a reliable source. The Mekong flows through Laos, in Asia."]},
+ {p:"res",title:"Safe, fair and kind to the planet",
+  big:"Keep private things private, watch out for unfair AI, and remember AI uses energy and water.",
+  body:`<ul><li><b>Privacy:</b> never share passwords, your address or phone number with a chatbot.</li>
+  <li><b>Fairness:</b> AI copies the patterns in its data. Unfair data makes unfair AI. A hiring AI trained mostly on men's job applications may favour men.</li>
+  <li><b>Planet:</b> AI runs in big buildings full of computers called <b>data centres</b>. They use lots of electricity, and water to keep cool.</li></ul>`,
+  terms:[["Bias","Unfairness, often caused by unbalanced data."],["Data centre","A building full of computers that run AI."]],
+  check:["Why do data centres use water?",["To clean the computers","To keep the computers cool","To make AI smarter","They don't use any"],1,"Computers get hot, and water is used to cool them."]}
+],
+ls:[
+ {p:"rep",title:"From text to numbers: tokens and IDs",
+  big:"A language model never sees letters. Text is cut into tokens, and each token is swapped for an ID number.",
+  like:"A library where every book has a catalogue number. The model only works with the numbers.",
+  diagram:"textPipe",
+  body:`<p><b>Tokens</b> are chunks of text. Common words are usually one token. Long or rare words are split into <b>sub-words</b>: <code>unbelievable</code> → <code>un | believ | able</code>.</p>
+  <p>The <b>vocabulary</b> is the list of all tokens the model knows. Each has an integer <b>token ID</b>.</p>`,
+  worked:{q:"Build a vocabulary (in order of first appearance, from 0) and encode: the cat sat on the mat",s:["Go word by word. A new word gets the next ID.","the → 0, cat → 1, sat → 2, on → 3","the again → already 0, no new ID","mat → 4","IDs: [0, 1, 2, 3, 0, 4]"]},
+  widget:"tokeniser",
+  terms:[["Token","A chunk of text: word, sub-word or punctuation."],["Vocabulary","All the tokens a model knows, each with an ID."],["Token ID","The integer that stands for a token."]],
+  trap:"A repeated token always keeps its first ID.",
+  check:["Vocab {I:0, like:1, AI:2, !:3}. Encode <code>I like AI ! I</code>",["0 1 2 3 4","0 1 2 3 0","1 2 3 4 1","0 1 2 3"],1,"\"I\" appears again, so it is 0 again."]},
+ {p:"rep",title:"Why AI struggles to count letters",
+  big:"The model sees tokens, not letters, so spelling and letter-counting are hard for it.",
+  like:"Being shown words as sealed sticker blocks: you see [straw][berry], not s-t-r-a-w-b-e-r-r-y.",
+  body:`<p>Ask "How many r's are in <i>strawberry</i>?" The model may see tokens like <code>str | aw | berry</code>, each as one ID number. The letters inside are hidden, so it guesses from patterns and can get it wrong.</p>
+  <p>Other token-related problems: reversing words, counting characters, and very rare words.</p>`,
+  terms:[["Token error","A mistake caused by the model seeing chunks instead of letters."]],
+  check:["Why might an LLM miscount the letters in a word?",["It reads tokens (chunks), not single letters","It has no memory","It cannot read English","The word is too long to store"],0,"Letters are hidden inside the token IDs."]},
+ {p:"rep",title:"Embeddings: meaning as numbers",
+  big:"An embedding is a list of numbers for a token. Words with similar meanings get similar lists.",
+  like:"A map where similar words live in the same neighbourhood.",
+  diagram:"embedMap",
+  body:`<p>Each token ID is turned into a <b>vector</b> (real models use hundreds of numbers). During training, words used in similar ways move <b>closer together</b>.</p>
+  <p>So <i>cat</i> ends up near <i>kitten</i> and far from <i>bus</i>.</p>`,
+  terms:[["Embedding","A vector of numbers that captures meaning."],["Vector","An ordered list of numbers."]],
+  check:["In a good embedding space, which word is closest to <i>happy</i>?",["joyful","bus","river","seven"],0,"Similar meaning means nearby vectors."]},
+ {p:"rep",title:"Images are grids of numbers",
+  big:"An image is a grid of pixels, and every pixel is stored as numbers.",
+  like:"A mosaic where every tile has a number saying how bright it is.",
+  body:`<ul><li><b>Greyscale:</b> one number per pixel, from <b>0 (black)</b> to <b>255 (white)</b>.</li>
+  <li><b>Colour (RGB):</b> three numbers per pixel: Red, Green and Blue.</li></ul>`,
+  worked:{q:"How many numbers store a 10 × 10 colour image?",s:["Pixels = 10 × 10 = 100","Colour has 3 channels (R, G, B)","Numbers = 100 × 3 = 300"]},
+  widget:"pixels",
+  terms:[["Pixel","One cell of the image grid."],["Channel","One colour layer: R, G or B."]],
+  trap:"Greyscale: width × height. Colour: width × height × 3.",
+  check:["A 28 × 28 <b>greyscale</b> image needs how many numbers?",["56","784","2352","28"],1,"28 × 28 = 784, with one channel."]},
+ {p:"lrn",title:"Inside a neuron",
+  big:"A neuron multiplies inputs by weights, adds a bias, then an activation function decides the output.",
+  like:"A mixing desk: each input has a volume knob (weight), the bias is a master boost, and the activation decides what comes out of the speaker.",
+  diagram:"neuronLS",
+  body:`<div class="formula">z = w1·x1 + w2·x2 + b &nbsp;&nbsp;then&nbsp;&nbsp; output = activation(z)</div>
+  <div class="tablewrap"><table class="mini"><tr><th>Activation</th><th>Rule</th><th>z = −2</th><th>z = 0</th><th>z = 3</th></tr>
+  <tr><td><b>Step</b></td><td>1 if z ≥ 0, else 0</td><td class="num">0</td><td class="num">1</td><td class="num">1</td></tr>
+  <tr><td><b>ReLU</b></td><td>max(0, z): negatives become 0</td><td class="num">0</td><td class="num">0</td><td class="num">3</td></tr>
+  <tr><td><b>Sigmoid</b></td><td>1 / (1 + e<sup>−z</sup>): always between 0 and 1</td><td class="num">0.12</td><td class="num">0.5</td><td class="num">0.95</td></tr></table></div>
+  <p>Stack neurons in <b>layers</b> (input → hidden → output) to make a <b>network</b>. More layers can learn more complex patterns.</p>`,
+  worked:{q:"x1 = 2, x2 = 3, w1 = 0.5, w2 = −1, b = 1, ReLU activation",s:["w1·x1 = 0.5 × 2 = 1","w2·x2 = −1 × 3 = −3","z = 1 + (−3) + 1 = −1","ReLU(−1) = max(0, −1) = 0","Output = 0"]},
+  widget:"neuronLS",
+  terms:[["Weight","How strongly an input affects z. Negative pushes z down."],["Bias","A constant added to shift z."],["Activation","The function that turns z into the output."]],
+  trap:"Work out z first, carefully with negatives. Only then apply the activation.",
+  check:["x1 = 1, x2 = 2, w1 = 3, w2 = −1, b = −2, step activation. Output?",["0","1","−1","3"],0,"z = 3 − 2 − 2 = −1. That is below 0, so step gives 0."]},
+ {p:"lrn",title:"Three ways to learn",
+  big:"Supervised learning uses labels, unsupervised finds groups without labels, reinforcement learns from rewards.",
+  body:`<div class="trio">
+   <div><b>Supervised</b><p>Labelled data: every example has the right answer.</p><p class="muted">Like studying with an answer key.</p><p><i>Emails labelled spam / not spam.</i></p></div>
+   <div><b>Unsupervised</b><p>No labels. Finds structure, e.g. clusters.</p><p class="muted">Like sorting a box of mixed buttons by yourself.</p><p><i>Grouping customers by what they buy.</i></p></div>
+   <div><b>Reinforcement</b><p>An agent acts, gets rewards or penalties, and improves by trial and error.</p><p class="muted">Like training a puppy with treats.</p><p><i>A robot learning to walk.</i></p></div></div>`,
+  terms:[["Supervised","Learning from labelled examples."],["Unsupervised","Finding patterns without labels."],["Reinforcement","Learning from rewards."]],
+  trap:"Clue words: labels → supervised; groups or no labels → unsupervised; reward, score, trial and error → reinforcement.",
+  check:["A music app groups songs that sound alike, with no labels. Which type?",["Supervised","Unsupervised","Reinforcement","Rule-based"],1,"No labels and finding groups means unsupervised learning."]},
+ {p:"lrn",title:"The ML pipeline and overfitting",
+  big:"Collect data, train, then test on data the model has never seen. A big gap between training and test scores means overfitting.",
+  like:"Overfitting is memorising last year's exam answers: 100% on that paper, then failing a new one.",
+  diagram:"pipeline",
+  body:`<div class="tablewrap"><table class="mini"><tr><th>Train accuracy</th><th>Test accuracy</th><th>Diagnosis</th></tr>
+  <tr><td class="num">99%</td><td class="num">60%</td><td><b>Overfitting</b>: memorised, did not generalise</td></tr>
+  <tr><td class="num">55%</td><td class="num">52%</td><td><b>Underfitting</b>: model too simple</td></tr>
+  <tr><td class="num">91%</td><td class="num">89%</td><td><b>Good fit</b>: works on new data</td></tr></table></div>
+  <p>The test set must <b>never</b> be used for training, otherwise the score is too optimistic.</p>`,
+  terms:[["Train/test split","Hold back some data (e.g. 20%) that the model never trains on."],["Overfitting","Great on training data, poor on new data."],["Generalise","Work well on new, unseen data."]],
+  check:["Training accuracy 98%, test accuracy 61%. What is happening?",["Underfitting","Overfitting","A good fit","The test set is too big"],1,"A big gap between train and test means overfitting."]},
+ {p:"lrn",title:"Reading a confusion matrix",
+  big:"Every yes/no prediction lands in one of four boxes. Accuracy = correct boxes ÷ total.",
+  like:"A smoke alarm. A false positive is beeping when there is no fire. A false negative is staying silent during a real fire.",
+  diagram:"cm",
+  body:`<div class="formula">accuracy = (TP + TN) / (TP + FP + FN + TN)<br>actual positives = TP + FN</div>
+  <p class="muted">Extension: precision = TP / (TP + FP) · recall = TP / (TP + FN)</p>`,
+  worked:{q:"TP = 40, FN = 10, FP = 5, TN = 45. Accuracy?",s:["Correct = TP + TN = 40 + 45 = 85","Total = 40 + 10 + 5 + 45 = 100","Accuracy = 85 / 100 = 85%"]},
+  widget:"confusion",
+  terms:[["False positive","A false alarm: said YES, really NO."],["False negative","A miss: said NO, really YES."]],
+  trap:"First decide what \"positive\" means (e.g. spam = positive). Then a real email sent to spam is a false positive.",
+  check:["Spam = positive. A real email from your teacher goes into the spam folder. This is a…",["true positive","false positive","false negative","true negative"],1,"The filter said spam (positive) but it was not spam: a false positive."]},
+ {p:"gen",title:"Next-token prediction and n-grams",
+  big:"A model gives every possible next token a probability, picks one, adds it, and repeats.",
+  like:"Autocomplete on your phone, repeated hundreds of times in a row.",
+  body:`<div class="formula">P(next | word) = count(word, next) ÷ count(all words after word)</div>
+  <p>A <b>bigram</b> model looks at <b>1 previous word</b>. A <b>trigram</b> looks at <b>2 previous words</b>, so it keeps more context.</p>`,
+  worked:{q:"Text: i like tea . i like code . i need tea .  Find P(like | i)",s:["Find every \"i\": 3 times","Words straight after it: like, like, need","count(i, like) = 2; total after i = 3","P(like | i) = 2 / 3 ≈ 0.67"]},
+  widget:"nextword",
+  terms:[["Bigram","A pair of neighbouring words."],["Trigram","Three neighbouring words: 2 of context + 1 predicted."]],
+  trap:"The bottom of the fraction is how many times the word is followed by something, not the length of the text.",
+  check:["A trigram model predicts the next word using…",["the previous word","the two previous words","the whole book","three random words"],1,"Trigram = 2 context words + 1 predicted word."]},
+ {p:"gen",title:"Attention",
+  big:"Attention lets each word look at the other words to work out what it means here.",
+  like:"A highlighter: for each word, the model highlights the other words that matter most.",
+  body:`<p>In <i>"She sat on the bank of the river"</i>, <i>bank</i> pays most attention to <i>river</i>, so the model knows it means a riverbank, not a money bank.</p>
+  <div class="bars" aria-label="Example attention weights from the word bank">
+   <div class="barrow"><span>river</span><span class="track"><span class="fill" style="width:62%"></span></span><span>0.62</span></div>
+   <div class="barrow"><span>sat</span><span class="track"><span class="fill" style="width:14%"></span></span><span>0.14</span></div>
+   <div class="barrow"><span>She</span><span class="track"><span class="fill" style="width:9%"></span></span><span>0.09</span></div>
+   <div class="barrow"><span>the, of, on</span><span class="track"><span class="fill" style="width:15%"></span></span><span>0.15</span></div>
+  </div>
+  <p>The weights add up to <b>1</b> (0.62 + 0.14 + 0.09 + 0.15 = 1.00).</p>`,
+  terms:[["Attention weight","How much one token focuses on another. They sum to 1."]],
+  trap:"Pick the word that tells you which meaning is intended. That is the one with the highest attention.",
+  check:["In <i>\"I deposited cash at the bank\"</i>, which word should <i>bank</i> attend to most?",["I","cash","the","at"],1,"\"cash\" shows it is a money bank."]},
+ {p:"gen",title:"Diffusion: images from noise",
+  big:"Diffusion starts with pure noise and removes it step by step, guided by the prompt, until an image appears.",
+  like:"Wiping fog off a window a little at a time, while someone tells you what should be behind it.",
+  diagram:"diffusion",
+  body:`<ul><li><b>Training:</b> take real images and add noise, step by step. The model learns how to undo each step.</li>
+  <li><b>Generating:</b> start from random noise and remove it, step by step. The <b>prompt</b> steers what appears.</li></ul>`,
+  terms:[["Noise","Random pixel values, like TV static."],["Denoise","Remove noise to reveal an image."]],
+  trap:"Generating goes noise → image. Adding noise only happens during training.",
+  check:["Prompt-conditioned diffusion makes an image by…",["searching the web for a match","starting from noise and removing it step by step, guided by the prompt","drawing one line at a time","adding noise to a finished photo"],1,"Generation is step-by-step denoising guided by the prompt."]},
+ {p:"int",title:"Structured prompts and few-shot examples",
+  big:"Tell the model who it is, what to do, the background, the format and the rules, and show examples.",
+  like:"A good task sheet from a teacher: clear instructions plus a worked example.",
+  body:`<div class="tablewrap"><table class="mini"><tr><th>Part</th><th>Example</th></tr>
+  <tr><td><b>Role</b></td><td>You are a Year 8 science tutor.</td></tr>
+  <tr><td><b>Task</b></td><td>Explain why ice floats.</td></tr>
+  <tr><td><b>Context</b></td><td>The student is learning about density.</td></tr>
+  <tr><td><b>Format</b></td><td>3 bullet points, under 60 words.</td></tr>
+  <tr><td><b>Constraint</b></td><td>Do not use the word "molecule".</td></tr></table></div>
+  <p><b>Few-shot</b> prompting includes a few input → output examples so the model copies the pattern:</p>
+  <div class="formula">Text: "I won the race!" → happy<br>Text: "My phone broke." → sad<br>Text: "We're going to the beach!" → ?</div>
+  <p>To compare prompts fairly, change <b>one thing at a time</b> and judge outputs with the same criteria.</p>`,
+  terms:[["Few-shot","Including worked examples in the prompt."],["Zero-shot","No examples, just the instruction."],["Constraint","A rule the output must follow."]],
+  check:["Which describes <b>few-shot</b> prompting?",["Asking very short questions","Including a few input → output examples in the prompt","Running the model a few times","Using few tokens"],1,"Examples show the model the pattern to copy."]},
+ {p:"int",title:"How an AI agent works",
+  big:"An agent is a model that plans, uses tools, looks at the results, and keeps going until the task is done.",
+  like:"A student doing a project: plan, use a calculator or the library, check what you found, then write the answer.",
+  diagram:"agentLoop",
+  body:`<p><b>Tools</b> cover the model's weak spots: a <b>calculator</b> for exact maths, <b>search</b> for up-to-date facts, a <b>calendar</b> or database for private information.</p>`,
+  worked:{q:"\"How many days until the next school holiday?\"",s:["Observe: the user wants a number of days","Plan: find the holiday date, then subtract today's date","Act: call the calendar tool → it returns the holiday date","Act: call the calculator → holiday date − today","Answer with the number of days"]},
+  terms:[["Agent","An AI that plans and takes actions with tools."],["Tool call","The agent asking another program to do a job."]],
+  trap:"If a task needs exact maths or current information, the best answer is \"call a tool\".",
+  check:["An agent is asked \"What is 18% of 2,437?\" Best action?",["Guess from training data","Call a calculator tool","Search for an image","Refuse to answer"],1,"A calculator gives the exact answer."]},
+ {p:"res",title:"Plausible is not the same as true",
+  big:"Models produce likely-sounding text, not checked facts, so fluent answers can be false.",
+  like:"A very confident student who writes beautifully, even when they are guessing.",
+  body:`<ul><li><b>Hallucination:</b> fluent but false output, including invented quotes and fake references.</li>
+  <li><b>Deepfakes:</b> AI-made fake video, images or audio of real people. They spread <b>misinformation</b>.</li>
+  <li><b>Verify:</b> find the original source, compare trusted outlets (lateral reading), reverse image search, look for provenance labels.</li>
+  <li><b>Safeguards:</b> require citations, human review before publishing, watermarks, let the model say "I don't know".</li></ul>`,
+  terms:[["Hallucination","Plausible but false output."],["Deepfake","Fake media showing a real person."],["Provenance","Where content came from and how it was made."]],
+  check:["A shocking video goes viral. Best first step?",["Share it quickly","Find the original source and check trusted news outlets","Count the likes","Ask the AI that made it"],1,"Trace where it came from and compare reliable sources."]},
+ {p:"res",title:"How bias gets into AI",
+  big:"Bias in the data becomes bias in the model's behaviour.",
+  like:"Learning to cook only from one family's recipes: you get good at their dishes and poor at everyone else's.",
+  diagram:"biasChain",
+  body:`<p><b>Fixes:</b> collect more balanced data, test the model separately for each group, document the dataset, and keep a human in the loop for important decisions.</p>`,
+  terms:[["Dataset bias","Some groups missing or over-represented in the data."]],
+  trap:"Explain bias as a chain: who is missing in the data → what the model learns → who it fails → the harm.",
+  check:["A face dataset is 90% light-skinned faces. The model will most likely…",["work equally well for everyone","make more errors on darker-skinned faces","refuse to run","only recognise animals"],1,"Under-represented groups get worse results."]}
+]};
+
+/* MCQ: [pillar, question, options, answerIndex, why] */
+const MCQ = {
+up:[
+ ["rep","How does a computer store the word <b>CAT</b>?",["As numbers","As a tiny picture of a cat","As a sound","It cannot store words"],0,"Everything in a computer, including letters, is stored as numbers."],
+ ["rep","Using the code A=1, B=2 … Z=26, what is <b>BAD</b>?",["2, 1, 4","1, 2, 4","2, 2, 4","3, 1, 4"],0,"B is the 2nd letter, A the 1st, D the 4th."],
+ ["rep","Using A=1 … Z=26, what does <b>8, 9</b> spell?",["HI","GI","IH","HJ"],0,"8 is H and 9 is I."],
+ ["rep","Which is a useful <b>feature</b> for sorting fruit?",["Colour","The shop's name","The day it was bought","The price tag's font"],0,"A feature describes the object itself. Colour helps tell fruit apart."],
+ ["rep","Hand-tokenise <code>I love AI!</code> into words and punctuation. How many tokens?",["3","4","5","8"],1,"I | love | AI | ! makes 4 tokens. The ! counts."],
+ ["rep","Which dataset is fairest for a cat-or-dog classifier?",["90 cats, 10 dogs","100 cats of one breed","50 cats and 50 dogs of many breeds and settings","100 dogs only"],2,"Balanced and varied data lets the AI learn both classes well."],
+ ["rep","Animals as [legs, has fur, can fly]: dog [4,1,0], cat [4,1,0], bird [2,0,1]. Which pair is most similar?",["Dog and bird","Cat and bird","Dog and cat","All are equally similar"],2,"Dog and cat have identical lists."],
+ ["rep","In a <b>labelled</b> dataset, each example…",["has the correct answer attached","has a price","is a picture","is sorted by size"],0,"Labels are the correct answers the AI learns from."],
+ ["lrn","Which of these uses <b>machine learning</b>?",["A light that turns on at 6 pm","A spam filter that learned from thousands of emails marked spam or not spam","A calculator adding 2 + 2","A door that opens when a button is pressed"],1,"It learned the pattern from labelled examples instead of following a written rule."],
+ ["lrn","A classifier trained only on red apples says a green apple is \"not an apple\". Best fix?",["Use a bigger computer","Add green and yellow apples to the training data","Remove all red apples","Test it on more red apples"],1,"The training data was not varied. Add the missing kinds of example."],
+ ["lrn","Which type of learning groups items <b>without labels</b>?",["Clustering","Supervised learning","Rule-following","Searching"],0,"Clustering finds groups by itself; no correct answers are given."],
+ ["lrn","A game robot gets points for reaching the goal and learns by trial and error. This is…",["Reinforcement learning","Clustering","Retrieval","Tokenising"],0,"Rewards and trial and error are the signs of reinforcement learning."],
+ ["lrn","Neuron: sunny (1) × weight 3, homework done (1) × weight 2, raining (1) × weight −4. Threshold 2. What happens?",["Total 9, go outside","Total 1, stay in","Total 5, go outside","Total −1, stay in"],1,"3 + 2 − 4 = 1, which is below the threshold 2, so the answer is no."],
+ ["lrn","Why do we test an AI on examples it was <b>not</b> trained on?",["To make it faster","To check it works on new things","To give it more labels","Because training examples are wrong"],1,"Testing on new examples shows whether it really learned the pattern."],
+ ["lrn","In a neuron, a <b>negative weight</b> means the input…",["is ignored","pushes the decision towards no","pushes the decision towards yes","is always zero"],1,"A negative weight lowers the total."],
+ ["lrn","Adding more training examples usually helps when they are…",["all the same","varied and correctly labelled","randomly labelled","only from one group"],1,"Quality and variety matter as much as quantity."],
+ ["gen","How does a chatbot write a sentence?",["It copies a whole web page","It predicts the next likely word again and again","It picks random letters","A person types it live"],1,"Next-word prediction, one word at a time."],
+ ["gen","\"The cat sat on the ___\". Which next word is most likely?",["mat","sky","seven","quickly"],0,"\"sat on the mat\" is a very common pattern."],
+ ["gen","Which is <b>retrieval</b>, not generation?",["An AI drawing a new dragon","A chatbot writing a new poem","A search engine finding an existing web page","An AI inventing a story"],2,"Retrieval finds information that already exists."],
+ ["gen","Which prompt is best?",["tell me about plants","plants","You are a friendly science teacher. Explain how plants make food in 3 sentences for a 10-year-old.","Write something"],2,"It has a role and a clear instruction with length and audience."],
+ ["gen","An image generator creates a picture from…",["a text prompt describing it","a photo it finds online","the user's camera","random numbers only, no input"],0,"Text-to-image models use your prompt to guide what they draw."],
+ ["gen","Text: <i>I like cats. I like dogs. I like cats.</i> Which word most often follows <b>like</b>?",["dogs","cats","I","like"],1,"cats follows like twice, dogs once."],
+ ["gen","In the prompt <i>\"You are a friendly science teacher\"</i>, this part is the…",["example","role","output","label"],1,"It tells the AI who to act as."],
+ ["int","Robot vacuum: which step is <b>perceive</b>?",["Turning its wheels","Its bump sensor detects a wall","Choosing to turn left","Beeping when finished"],1,"Perceive means sensing information from the world."],
+ ["int","For a smart speaker, what is the <b>input</b>?",["Your voice","The weather report it reads out","The speaker's light","The power cable"],0,"Your voice goes in; the spoken answer comes out."],
+ ["int","Face-unlock fails in a dark room. What is a sensible fix?",["Train with low-light photos or add an infrared sensor","Delete the face-unlock feature","Only use the phone in the dark","Make the screen brighter only"],0,"Fix the data or the sensor so the AI can handle this case."],
+ ["int","A self-driving car sees a red light. Which is the <b>decide</b> step?",["The camera takes a picture","The AI chooses to slow down","The brakes press","The light turns green"],1,"Deciding is choosing an action from what was sensed."],
+ ["int","In an AI helper diagram (inputs → model → outputs → user), the user is…",["the person who gives input and uses the output","the computer chip","the training data","the internet"],0,"The user interacts with the helper."],
+ ["res","What is an AI <b>hallucination</b>?",["A confident answer that is made up or wrong","A very fast answer","An answer with pictures","A broken screen"],0,"Hallucinations sound sure but are false."],
+ ["res","Best way to check an important fact an AI gave you?",["Ask the same AI again","Check two reliable sources such as official websites or books","Trust it if it sounds sure","Ask a friend to guess"],1,"Verify with trusted, independent sources."],
+ ["res","You used AI to help with homework. What is the honest thing to do?",["Say nothing","Tell your teacher which parts the AI helped with","Say you did it all yourself","Delete the work"],1,"Acknowledging AI help is part of using it responsibly."],
+ ["res","Why does AI use water?",["Robots drink it","Data centres use water to cool their computers","Water makes AI smarter","It doesn't use any"],1,"Data centres get hot and need cooling, often with water."],
+ ["res","Which is safe to share with a chatbot?",["Your password","Your home address","Your favourite colour","Your phone number"],2,"Never share private information like passwords, addresses or phone numbers."],
+ ["res","A hiring AI trained on past data that was mostly men now favours men. Why?",["The AI chose to be unfair on purpose","Bias in the training data","The computer was too slow","Too many labels"],1,"Unfair data teaches unfair patterns."],
+ ["res","What is AI?",["A living being","A computer program made by people","A kind of robot animal","Magic"],1,"AI is software that people build."]
+],
+ls:[
+ ["rep","Splitting <code>unbelievable</code> into <code>un | believ | able</code> is called…",["Tokenisation","Embedding","Attention","Diffusion"],0,"Breaking text into tokens (often sub-words) is tokenisation."],
+ ["rep","Token IDs are…",["integers that index tokens in the vocabulary","the meaning of each word","pixel values","probabilities"],0,"Each token maps to one integer ID in the vocabulary."],
+ ["rep","In a good embedding space, words with similar meanings…",["have the same token ID","have vectors that are close together","are always next to each other in a sentence","have the same length"],1,"Similar meaning → nearby vectors."],
+ ["rep","A 28 × 28 greyscale image is stored as how many numbers?",["56","784","2352","28"],1,"28 × 28 = 784. Greyscale has one channel."],
+ ["rep","A 10 × 10 <b>colour</b> (RGB) image is stored as how many numbers?",["100","300","30","1000"],1,"10 × 10 × 3 channels = 300."],
+ ["rep","In an 8-bit greyscale image, a pixel value of 0 usually means…",["white","black","red","transparent"],1,"0 is black, 255 is white."],
+ ["rep","Why do LLMs often miscount the letters in <i>strawberry</i>?",["They process tokens (chunks), not individual letters","They cannot read English","The word is too long to store","They round numbers"],0,"The model sees token IDs for chunks, so letters are hidden."],
+ ["rep","Vocab {the:1, cat:2, sat:3, on:4, mat:5}. Encode <i>the cat sat on the mat</i>.",["1 2 3 4 5 6","1 2 3 4 1 5","5 4 3 2 1 0","1 2 3 4 5 1"],1,"Repeated \"the\" keeps ID 1."],
+ ["lrn","Neuron: x1=2, x2=3, w1=0.5, w2=−1, b=1, ReLU activation. Output?",["−1","0","1","2"],1,"z = 1 − 3 + 1 = −1. ReLU(−1) = max(0, −1) = 0."],
+ ["lrn","What is sigmoid(0)?",["0","0.5","1","undefined"],1,"1 / (1 + e⁰) = 1 / 2 = 0.5."],
+ ["lrn","Step activation outputs 1 if z ≥ 0. If z = 0.4 the output is…",["0","0.4","1","−1"],2,"0.4 ≥ 0, so 1."],
+ ["lrn","Supervised learning requires…",["labelled data","no data","rewards only","an internet connection"],0,"Supervised = examples with correct labels."],
+ ["lrn","Grouping customers by buying habits <b>without labels</b> is…",["supervised learning","unsupervised learning","reinforcement learning","tokenisation"],1,"No labels and finding groups = unsupervised (clustering)."],
+ ["lrn","A robot learns to walk by getting a reward for distance travelled. This is…",["supervised learning","unsupervised learning","reinforcement learning","diffusion"],2,"Actions + rewards = reinforcement learning."],
+ ["lrn","Correct order of the ML workflow?",["train → collect data → evaluate → test","collect data → train → test → evaluate","test → train → collect data → evaluate","evaluate → collect data → train → test"],1,"Data first, train, then test on held-out data and evaluate."],
+ ["lrn","Why do we split data into training and test sets?",["To train faster","To measure performance on unseen data","To make the dataset bigger","To remove labels"],1,"Test data shows how the model generalises."],
+ ["lrn","Training accuracy 99%, test accuracy 60%. The model is most likely…",["underfitting","overfitting","perfect","not trained"],1,"Big gap between train and test = overfitting."],
+ ["lrn","TP=40, FN=10, FP=5, TN=45. Accuracy?",["80%","85%","90%","45%"],1,"(40 + 45) / 100 = 85%."],
+ ["lrn","Same matrix (TP=40, FN=10, FP=5, TN=45). How many actual positives?",["45","50","40","55"],1,"Actual positives = TP + FN = 50."],
+ ["lrn","Spam = positive. A real email goes to the spam folder. This is a…",["true positive","false positive","false negative","true negative"],1,"Predicted positive, actually negative = false positive."],
+ ["lrn","Stacking neurons into hidden layers allows a network to…",["learn more complex patterns","use less data always","skip training","avoid activations"],0,"More layers can represent more complex functions."],
+ ["gen","How does an LLM generate text?",["Copies sentences from a database","Predicts a probability for each next token, picks one, repeats","Translates from another language","Chooses random words"],1,"Next-token prediction, one token at a time."],
+ ["gen","Text: <i>i like tea . i like code . i need tea .</i> P(like | i) = ?",["1/3","2/3","2/9","1/2"],1,"After \"i\": like ×2, need ×1, so 2/3."],
+ ["gen","A trigram model predicts the next word from…",["the previous word","the two previous words","the whole document","three random words"],1,"Trigram = 3-word window: 2 context words + 1 predicted."],
+ ["gen","In <i>\"She sat on the bank of the river\"</i>, which word should <i>bank</i> attend to most?",["She","the","river","on"],2,"\"river\" tells the model which meaning of bank is intended."],
+ ["gen","The attention weights from one token to all tokens…",["add up to 1","add up to 100","are all equal","are always integers"],0,"They are a probability-like distribution (softmax)."],
+ ["gen","Prompt-conditioned diffusion generates an image by…",["starting from noise and removing it step by step, guided by the prompt","searching the web for a matching image","drawing lines one at a time","adding noise to a photo"],0,"Generation = iterative denoising guided by the text prompt."],
+ ["gen","Why can a bigram model produce odd sentences?",["It only looks at one previous word","It uses too much context","It has no vocabulary","It runs too slowly"],0,"With only one word of context it loses track of meaning."],
+ ["int","Few-shot prompting means…",["asking very short questions","including a few input → output examples in the prompt","using few tokens","running the model a few times"],1,"Examples show the model the pattern to copy."],
+ ["int","Which is <b>not</b> part of a structured prompt framework?",["Role","Format","Constraints","The model's number of parameters"],3,"Role, task, context, format and constraints are prompt parts."],
+ ["int","An agent is asked \"What is 18% of 2,437?\" Best action?",["Guess from training data","Call a calculator tool","Search for a picture","Refuse"],1,"Tools give exact arithmetic."],
+ ["int","Typical agent loop order?",["act → plan → sense","sense/observe → plan → act (tool) → observe result","plan → stop","observe → answer → plan"],1,"Sense, plan, act, observe, and re-plan if needed."],
+ ["int","To compare two prompts fairly you should…",["change several things at once","change one thing at a time and use the same criteria","use different models","only read the first word"],1,"Controlled comparison isolates the effect of each change."],
+ ["res","Why can a fluent AI answer still be false?",["Models predict likely text, not checked facts","AI is always lying on purpose","Fluent text is never false","The internet is off"],0,"Plausibility is not truth."],
+ ["res","A deepfake is…",["AI-generated fake video, image or audio of a real person","a very deep neural network","an encrypted file","a type of tokeniser"],0,"Synthetic media impersonating someone."],
+ ["res","A shocking video goes viral. Best first check?",["Share it quickly","Find the original source and check trusted news outlets","Count the likes","Ask the AI that made it"],1,"Trace provenance and use lateral reading."],
+ ["res","A face dataset is 90% light-skinned faces. The model will likely…",["work equally well for everyone","make more errors on darker-skinned faces","refuse to work","only recognise animals"],1,"Under-represented groups get worse performance."],
+ ["res","Which is a good safeguard for an AI that writes news summaries?",["Publish instantly with no checks","Require sources and human review before publishing","Hide that AI was used","Turn off fact-checking"],1,"Citations plus human review catch hallucinations."]
+]};
+
+/* Structured tasks: {title, marks, scenario(html), parts:[{label, q, marks, mps:[[pts,text]]}]} */
+const TASKS = {
+up:[
+ {title:"Task 1 · The fruit-sorting robot",marks:20,
+  scenario:`<p>The canteen robot must sort fruit into <b>apple</b> or <b>orange</b>. Here is its training data:</p>
+  <table><tr><th>#</th><th>Colour</th><th>Round?</th><th>Bumpy skin?</th><th>Label</th></tr>
+  <tr><td>1</td><td>red</td><td>yes</td><td>no</td><td>apple</td></tr>
+  <tr><td>2</td><td>orange</td><td>yes</td><td>yes</td><td>orange</td></tr>
+  <tr><td>3</td><td>green</td><td>yes</td><td>no</td><td>apple</td></tr>
+  <tr><td>4</td><td>orange</td><td>yes</td><td>yes</td><td>orange</td></tr>
+  <tr><td>5</td><td>red</td><td>yes</td><td>no</td><td>apple</td></tr>
+  <tr><td>6</td><td>red</td><td>yes</td><td>no</td><td>apple</td></tr></table>`,
+  parts:[
+   {label:"(a)",marks:4,q:"Write one IF–THEN rule that sorts all six fruits correctly.",
+    mps:[[2,"Uses a feature that separates the groups, e.g. <i>bumpy skin</i> (or colour = orange)."],[2,"Gives both outcomes: IF bumpy skin THEN orange ELSE apple. <i>Round?</i> earns nothing because every fruit is round."]]},
+   {label:"(b)",marks:4,q:"Explain the difference between your rule and a machine-learning classifier.",
+    mps:[[2,"The rule is written by a person."],[2,"A classifier learns the pattern itself from many labelled examples and can improve with more data."]]},
+   {label:"(c)",marks:6,q:"The robot later calls a yellow apple an \"orange\". What is wrong with the training data, and how would you fix it?",
+    mps:[[2,"Only red and green apples, no yellow ones (data not varied / not fair)."],[2,"Very few examples in total (only 6)."],[2,"Fix: add many apples of every colour and more oranges, keep the two groups balanced, then retrain and test on new fruit."]]},
+   {label:"(d)",marks:6,q:"Describe the robot's perceive → decide → act loop, and give one failure case with a fix.",
+    mps:[[2,"Perceive: camera or sensor detects the fruit's colour and skin."],[2,"Decide: the classifier chooses apple or orange. Act: the arm places it in the correct bin."],[2,"Failure case + fix, e.g. dim light makes colours wrong → add a lamp or train with dim-light photos."]]}
+  ]},
+ {title:"Task 2 · The next-word guesser",marks:20,
+  scenario:`<p>A tiny chatbot learned from this text (ignore full stops):</p>
+  <p><code>my dog likes walks my dog likes treats my cat likes naps my dog sleeps</code></p>`,
+  parts:[
+   {label:"(a)",marks:4,q:"List every word that follows <b>dog</b>, with how many times each appears.",
+    mps:[[2,"likes: 2"],[2,"sleeps: 1"]]},
+   {label:"(b)",marks:4,q:"What will the chatbot predict after <b>my</b>? Explain using counts.",
+    mps:[[2,"dog"],[2,"\"dog\" follows \"my\" 3 times; \"cat\" only once, so dog is most likely."]]},
+   {label:"(c)",marks:6,q:"A chatbot says \"Dogs have six legs.\" Name this problem, explain why it happens, and say how to check.",
+    mps:[[2,"It is a hallucination."],[2,"The chatbot predicts likely words; it does not check facts."],[2,"Check two reliable sources (encyclopaedia, vet website, teacher)."]]},
+   {label:"(d)",marks:6,q:"Improve the prompt <i>\"tell me about dogs\"</i> using a role, an instruction and an example.",
+    mps:[[2,"Role, e.g. \"You are a friendly vet.\""],[2,"Clear instruction with length and audience, e.g. \"Explain in 3 short sentences how to care for a puppy, for a Year 6 student.\""],[2,"An example of the style wanted, e.g. \"Like this: 'Puppies need fresh water every day.'\""]]}
+  ]}
+],
+ls:[
+ {title:"Task 1 · From tokens to predictions",marks:20,
+  scenario:`<p>Corpus (already lower-case, tokens separated by spaces):</p>
+  <p><code>the robot reads the map . the robot draws the map . the student reads the book .</code></p>
+  <p>Build the vocabulary in order of first appearance, starting at ID 0.</p>`,
+  parts:[
+   {label:"(a)",marks:4,q:"Give the token IDs for <code>the robot reads the map .</code>",
+    mps:[[2,"the=0, robot=1, reads=2, map=3, .=4"],[2,"IDs: 0 1 2 0 3 4 (the repeated \"the\" keeps ID 0)."]]},
+   {label:"(b)",marks:6,q:"List the bigram counts for words that follow <b>the</b>, and compute P(map | the).",
+    mps:[[2,"robot 2, map 2, student 1, book 1"],[2,"Total followers of \"the\" = 6"],[2,"P(map | the) = 2/6 = 1/3 ≈ 0.33"]]},
+   {label:"(c)",marks:6,q:"Write a Python function <code>predict_next(words, w)</code> that returns the word that most often follows <code>w</code>.",
+    mps:[[2,"Loops over neighbouring pairs, e.g. <code>for i in range(len(words) - 1)</code>."],[2,"Counts followers of <code>w</code> in a dictionary."],[2,"Returns the follower with the highest count.<pre>def predict_next(words, w):\n    counts = {}\n    for i in range(len(words) - 1):\n        if words[i] == w:\n            nxt = words[i + 1]\n            counts[nxt] = counts.get(nxt, 0) + 1\n    return max(counts, key=counts.get)</pre>"]]},
+   {label:"(d)",marks:4,q:"Explain why a large language model may miscount the letter r in <i>strawberry</i>.",
+    mps:[[2,"The model reads tokens (chunks such as \"straw\" + \"berry\"), each turned into an ID."],[2,"It never sees the individual letters, so counting them is a guess based on patterns."]]}
+  ]},
+ {title:"Task 2 · A plant-watering neuron",marks:20,
+  scenario:`<p>A neuron decides whether to water a plant. Inputs: <b>x1</b> = soil dryness (0 to 1), <b>x2</b> = rain forecast (0 or 1).</p>
+  <p>Weights <b>w1 = 4</b>, <b>w2 = −3</b>, bias <b>b = −2</b>. Step activation: output 1 (water) if z ≥ 0, else 0.</p>`,
+  parts:[
+   {label:"(a)",marks:4,q:"Compute z and the output for (x1 = 0.8, x2 = 0) and for (x1 = 0.8, x2 = 1).",
+    mps:[[2,"z = 4(0.8) − 3(0) − 2 = 1.2 → output 1 (water)"],[2,"z = 3.2 − 3 − 2 = −1.8 → output 0 (do not water)"]]},
+   {label:"(b)",marks:2,q:"What does the negative weight on x2 do?",
+    mps:[[2,"Forecast rain lowers z, making watering less likely."]]},
+   {label:"(c)",marks:8,q:"Over 100 test days (positive = water): TP 30, FN 10, FP 15, TN 45. Compute the accuracy. Which error is worse for the plant, and why?",
+    mps:[[2,"Accuracy = (30 + 45) / 100"],[2,"= 75%"],[2,"False negatives (10 days the plant needed water but got none) are worse for the plant."],[2,"The plant may dry out or die; a false positive only wastes some water."]]},
+   {label:"(d)",marks:6,q:"Why must the test days be kept separate from the training days?",
+    mps:[[2,"To measure how the model performs on unseen data (generalisation)."],[2,"Testing on training data overestimates accuracy and hides overfitting."],[2,"Mentions a split, e.g. 80% train / 20% test, with no overlap."]]}
+  ]},
+ {title:"Task 3 · Design a homework-helper agent",marks:20,
+  scenario:`<p>Your school wants an AI agent that helps Year 7 students with homework questions in maths, science and English.</p>`,
+  parts:[
+   {label:"(a)",marks:6,q:"Write a structured prompt for the agent (role, task, context, format, constraint) and include one few-shot example.",
+    mps:[[2,"Role and task stated, e.g. \"You are a patient Year 7 tutor. Help the student understand, do not just give the answer.\""],[2,"Context, format and a constraint, e.g. \"Students are 12. Reply in at most 4 short steps. Never invent sources.\""],[2,"A few-shot example: one sample question and the ideal reply."]]},
+   {label:"(b)",marks:4,q:"Name two tools the agent should be able to call and when each is used.",
+    mps:[[2,"Calculator for exact arithmetic."],[2,"Search or school library / dictionary for facts and up-to-date information."]]},
+   {label:"(c)",marks:4,q:"Trace the agent's loop for: \"When is the next school holiday and how many days away is it?\"",
+    mps:[[2,"Observe the question → plan: look up the calendar, then compute the difference."],[2,"Act: call calendar tool → observe the date → call calculator → answer with the number of days."]]},
+   {label:"(d)",marks:6,q:"Give two safeguards against hallucination or misinformation, and one possible bias risk.",
+    mps:[[2,"Safeguard 1, e.g. cite sources / check against trusted references."],[2,"Safeguard 2, e.g. allow \"I'm not sure\", teacher review, flag low confidence."],[2,"Bias risk, e.g. trained mostly on English text so it serves Lao-speaking students worse; fix by testing with diverse students."]]}
+  ]}
+]};
+
+
+
+/*LABS-START*/
+const LABS = [
+ {title:"Lab 1 · Tokens and token IDs", concept:"Representation",
+  brief:"Finish <code>tokenise</code> (lower-case, remove . , ! ? and split) and <code>build_vocab</code> (give each new token the next ID from 0).",
+  starter:`text = "The cat sat on the mat. The dog sat too!"
+
+def tokenise(text):
+    # 1. make lowercase
+    # 2. remove . , ! ?
+    # 3. split into words
+    return []
+
+def build_vocab(tokens):
+    # give each NEW token the next ID, starting at 0
+    vocab = {}
+    return vocab
+
+tokens = tokenise(text)
+vocab = build_vocab(tokens)
+ids = [vocab[t] for t in tokens]
+print(tokens)
+print(vocab)
+print(ids)
+`,
+  solution:`text = "The cat sat on the mat. The dog sat too!"
+
+def tokenise(text):
+    text = text.lower()
+    for p in ".,!?":
+        text = text.replace(p, "")
+    return text.split()
+
+def build_vocab(tokens):
+    vocab = {}
+    for t in tokens:
+        if t not in vocab:
+            vocab[t] = len(vocab)
+    return vocab
+
+tokens = tokenise(text)
+vocab = build_vocab(tokens)
+ids = [vocab[t] for t in tokens]
+print(tokens)
+print(vocab)
+print(ids)
+`,
+  tests:`_check("tokenise lower-cases and strips punctuation", lambda: (tokenise("Hi, hi there!") == ["hi", "hi", "there"], "tokenise('Hi, hi there!') gave " + str(tokenise("Hi, hi there!"))))
+_check("build_vocab gives IDs in order of first appearance", lambda: (build_vocab(["a", "b", "a", "c"]) == {"a": 0, "b": 1, "c": 2}, "build_vocab(['a','b','a','c']) gave " + str(build_vocab(["a", "b", "a", "c"]))))
+`},
+ {title:"Lab 2 · Bigram next-word predictor", concept:"Generation",
+  brief:"Count which word follows which, predict the most likely next word, and compute P(next | word).",
+  starter:`text = "i like tea . i like code . i need tea . you like tea ."
+words = text.split()
+
+def bigram_counts(words):
+    # counts[w1][w2] = how many times w2 came straight after w1
+    counts = {}
+    return counts
+
+def predict_next(counts, word):
+    # return the word that most often follows the given word
+    return None
+
+def prob(counts, w1, w2):
+    # P(w2 | w1) = count(w1, w2) / total count of words after w1
+    return 0
+
+counts = bigram_counts(words)
+print(counts.get("i"))
+print("After 'like':", predict_next(counts, "like"))
+print("P(like | i) =", prob(counts, "i", "like"))
+`,
+  solution:`text = "i like tea . i like code . i need tea . you like tea ."
+words = text.split()
+
+def bigram_counts(words):
+    counts = {}
+    for i in range(len(words) - 1):
+        w1 = words[i]
+        w2 = words[i + 1]
+        if w1 not in counts:
+            counts[w1] = {}
+        counts[w1][w2] = counts[w1].get(w2, 0) + 1
+    return counts
+
+def predict_next(counts, word):
+    followers = counts[word]
+    best = None
+    for w in followers:
+        if best is None or followers[w] > followers[best]:
+            best = w
+    return best
+
+def prob(counts, w1, w2):
+    total = sum(counts[w1].values())
+    return counts[w1].get(w2, 0) / total
+
+counts = bigram_counts(words)
+print(counts.get("i"))
+print("After 'like':", predict_next(counts, "like"))
+print("P(like | i) =", prob(counts, "i", "like"))
+`,
+  tests:`_c = bigram_counts("a b a c a b".split())
+_check("bigram_counts counts followers", lambda: (_c.get("a") == {"b": 2, "c": 1}, "counts['a'] should be {'b': 2, 'c': 1}, got " + str(_c.get("a"))))
+_check("predict_next picks the most frequent follower", lambda: (predict_next(_c, "a") == "b", "predict_next(counts, 'a') should be 'b'"))
+_check("prob computes P(c | a) = 1/3", lambda: (abs(prob(_c, "a", "c") - 1 / 3) < 0.001, "got " + str(prob(_c, "a", "c"))))
+`},
+ {title:"Lab 3 · A single neuron", concept:"Learning",
+  brief:"Code the step activation and the neuron, then choose w1, w2 and b so the neuron behaves like AND: only (1, 1) outputs 1.",
+  starter:`def step(z):
+    # return 1 if z >= 0, otherwise 0
+    return 0
+
+def neuron(x1, x2, w1, w2, b):
+    # z = w1*x1 + w2*x2 + b, then apply step
+    return 0
+
+# Choose weights so the neuron acts like AND
+w1, w2, b = 0, 0, 0
+
+for x1, x2 in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+    print(x1, x2, "->", neuron(x1, x2, w1, w2, b))
+`,
+  solution:`def step(z):
+    if z >= 0:
+        return 1
+    return 0
+
+def neuron(x1, x2, w1, w2, b):
+    z = w1 * x1 + w2 * x2 + b
+    return step(z)
+
+# AND: needs both inputs to beat the bias
+w1, w2, b = 1, 1, -1.5
+
+for x1, x2 in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+    print(x1, x2, "->", neuron(x1, x2, w1, w2, b))
+`,
+  tests:`_check("step(0.2) is 1 and step(-0.1) is 0", lambda: (step(0.2) == 1 and step(-0.1) == 0, "check your comparison"))
+_check("neuron computes z = w1*x1 + w2*x2 + b, then step", lambda: (neuron(2, 3, 0.5, -1, 1) == 0 and neuron(2, 3, 1, 1, -4) == 1, "neuron(2,3,0.5,-1,1) should be 0 and neuron(2,3,1,1,-4) should be 1"))
+_check("your weights make an AND gate", lambda: ([neuron(a, c, w1, w2, b) for a, c in [(0, 0), (0, 1), (1, 0), (1, 1)]] == [0, 0, 0, 1], "outputs were " + str([neuron(a, c, w1, w2, b) for a, c in [(0, 0), (0, 1), (1, 0), (1, 1)]])))
+`},
+ {title:"Lab 4 · Train/test split and a threshold classifier", concept:"Learning",
+  brief:"Split 80/20. Find the best pass mark (threshold) on the training data only, then measure accuracy on the test data.",
+  starter:`data = [(1, 0), (2, 0), (2.5, 0), (3, 0), (3.5, 1),
+        (4, 1), (5, 1), (6, 1), (3.2, 0), (4.5, 1)]
+# each row: (hours studied, passed? 1 or 0)
+
+split = int(len(data) * 0.8)
+train = data[:split]
+test = data[split:]
+
+def predict(hours, t):
+    # pass (1) if hours >= t, else fail (0)
+    return 0
+
+def accuracy(rows, t):
+    # fraction of rows where predict(...) equals the label
+    return 0
+
+def best_threshold(rows):
+    # try t = 0, 0.5, 1.0, ..., 7.0 and keep the one with the highest accuracy
+    return 0
+
+t = best_threshold(train)
+print("Best threshold:", t)
+print("Train accuracy:", accuracy(train, t))
+print("Test accuracy:", accuracy(test, t))
+`,
+  solution:`data = [(1, 0), (2, 0), (2.5, 0), (3, 0), (3.5, 1),
+        (4, 1), (5, 1), (6, 1), (3.2, 0), (4.5, 1)]
+
+split = int(len(data) * 0.8)
+train = data[:split]
+test = data[split:]
+
+def predict(hours, t):
+    if hours >= t:
+        return 1
+    return 0
+
+def accuracy(rows, t):
+    correct = 0
+    for hours, label in rows:
+        if predict(hours, t) == label:
+            correct += 1
+    return correct / len(rows)
+
+def best_threshold(rows):
+    best_t = 0
+    best_acc = -1
+    for i in range(15):
+        t = i * 0.5
+        acc = accuracy(rows, t)
+        if acc > best_acc:
+            best_acc = acc
+            best_t = t
+    return best_t
+
+t = best_threshold(train)
+print("Best threshold:", t)
+print("Train accuracy:", accuracy(train, t))
+print("Test accuracy:", accuracy(test, t))
+`,
+  tests:`_check("predict uses hours >= t", lambda: (predict(4, 3) == 1 and predict(2, 3) == 0 and predict(3, 3) == 1, "predict(4,3), predict(2,3), predict(3,3) should be 1, 0, 1"))
+_check("accuracy is a fraction of correct rows", lambda: (abs(accuracy([(1, 0), (5, 1), (2, 1)], 3) - 2 / 3) < 0.001, "got " + str(accuracy([(1, 0), (5, 1), (2, 1)], 3))))
+_check("best threshold on training data is 3.5", lambda: (best_threshold(train) == 3.5, "got " + str(best_threshold(train))))
+`},
+ {title:"Lab 5 · Confusion matrix and accuracy", concept:"Learning",
+  brief:"Count TP, FP, FN and TN for a spam filter (1 = spam), then compute accuracy.",
+  starter:`actual    = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0]
+predicted = [1, 0, 0, 1, 1, 0, 1, 0, 0, 0]
+# 1 = spam (positive), 0 = not spam
+
+def confusion(actual, predicted):
+    tp = fp = fn = tn = 0
+    # look at each pair (a, p) and add 1 to the right box
+    return tp, fp, fn, tn
+
+def accuracy(tp, fp, fn, tn):
+    return 0
+
+tp, fp, fn, tn = confusion(actual, predicted)
+print("TP", tp, "FP", fp, "FN", fn, "TN", tn)
+print("Accuracy:", accuracy(tp, fp, fn, tn))
+`,
+  solution:`actual    = [1, 1, 0, 1, 0, 0, 1, 0, 1, 0]
+predicted = [1, 0, 0, 1, 1, 0, 1, 0, 0, 0]
+
+def confusion(actual, predicted):
+    tp = fp = fn = tn = 0
+    for a, p in zip(actual, predicted):
+        if a == 1 and p == 1:
+            tp += 1
+        elif a == 0 and p == 1:
+            fp += 1
+        elif a == 1 and p == 0:
+            fn += 1
+        else:
+            tn += 1
+    return tp, fp, fn, tn
+
+def accuracy(tp, fp, fn, tn):
+    return (tp + tn) / (tp + fp + fn + tn)
+
+tp, fp, fn, tn = confusion(actual, predicted)
+print("TP", tp, "FP", fp, "FN", fn, "TN", tn)
+print("Accuracy:", accuracy(tp, fp, fn, tn))
+`,
+  tests:`_check("confusion counts the four boxes", lambda: (confusion(actual, predicted) == (3, 1, 2, 4), "expected (3, 1, 2, 4), got " + str(confusion(actual, predicted))))
+_check("accuracy = (TP + TN) / total", lambda: (abs(accuracy(3, 1, 2, 4) - 0.7) < 0.001, "accuracy(3,1,2,4) should be 0.7, got " + str(accuracy(3, 1, 2, 4))))
+`}
+];
+const TEST_HELPER = `
+def _check(name, fn):
+    try:
+        r = fn()
+        ok = r[0]
+        msg = r[1]
+    except Exception as e:
+        ok = False
+        msg = "error: " + str(e)
+    if ok:
+        print("PASS: " + name)
+    else:
+        print("FAIL: " + name + " (" + msg + ")")
+`;
+/*LABS-END*/
+
+/* ================= state & helpers ================= */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("ijaio:"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("ijaio:"+k, JSON.stringify(v)); }catch(e){} }
+};
+const state = { track: store.get("track","ls"), tab: "learn", jump:null };
+const validTabs = ["learn","cards","drill","mock","lab"];
+const hsh = location.hash.replace("#","");
+if (["up","ls"].includes(hsh)) state.track = hsh;
+if (validTabs.includes(hsh)) state.tab = hsh;
+
+const $ = (s, el=document) => el.querySelector(s);
+const main = $("#main");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const chip = p => `<span class="chip" data-p="${p}">${PILLARS[p].name}</span>`;
+const LETTERS = "ABCD";
+let mockTimer = null;
+
+function prepQ(q){
+  const idx = shuffle(q[2].map((_,i)=>i));
+  return {p:q[0], q:q[1], opts:idx.map(i=>q[2][i]), ans:idx.indexOf(q[3]), why:q[4]};
+}
+function doneSet(){ return new Set(store.get("done:"+state.track, [])); }
+
+function setTrack(t){
+  state.track = t; store.set("track", t);
+  if (t === "up" && state.tab === "lab") state.tab = "learn";
+  drill.run = null; cards.deck = null;
+  render();
+}
+function setTab(t){ state.tab = t; render(); if (!state.jump) window.scrollTo({top:0}); }
+document.querySelectorAll("[data-track]").forEach(b => b.addEventListener("click", () => setTrack(b.dataset.track)));
+document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => setTab(b.dataset.tab)));
+
+function render(){
+  if (mockTimer){ clearInterval(mockTimer); mockTimer = null; }
+  const T = TRACKS[state.track];
+  $("#lede").textContent = T.lede;
+  $("#spec").innerHTML = `<span><b>${T.grades}</b></span>` + T.spec.map(s=>`<span><b>${s[0]}</b> ${s[1]}</span>`).join("");
+  document.querySelectorAll("[data-track]").forEach(b => b.setAttribute("aria-pressed", b.dataset.track===state.track));
+  $("#tab-lab").hidden = state.track === "up";
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab===state.tab));
+  ({learn:renderLearn, cards:renderCards, drill:renderDrill, mock:renderMock, lab:renderLab})[state.tab]();
+}
+
+function mountQuestion(el, q, onAnswer){
+  let picked = null;
+  const draw = () => {
+    const done = picked !== null;
+    el.querySelector(".opts").innerHTML = q.opts.map((o,k)=>{
+      let cls=""; if(done){ if(k===q.ans) cls="right"; else if(k===picked) cls="wrong"; }
+      return `<button class="opt ${cls}" data-k="${k}" ${done?"disabled":""}><span class="k">${LETTERS[k]}</span><span>${o}</span></button>`;
+    }).join("");
+    el.querySelector(".whybox").innerHTML = done ? `<div class="why"><b>${picked===q.ans?"Correct!":"Not quite."}</b>${q.why}</div>` : "";
+    el.querySelectorAll(".opt:not(:disabled)").forEach(b=>b.addEventListener("click",()=>{ picked=+b.dataset.k; draw(); if (onAnswer) onAnswer(picked===q.ans); }));
+  };
+  draw();
+}
+
+/* ================= LEARN ================= */
+function renderLearn(){
+  const T = TRACKS[state.track], notes = NOTES[state.track], done = doneSet();
+  const total = notes.length;
+  const countLine = d => `${notes.filter((n,k)=>d.has(k)).length} of ${total} ideas understood`;
+  let html = `<div class="section-head"><h2>How to learn each idea</h2><span class="muted" id="donecount">${countLine(done)}</span></div>
+  <div class="howto">
+    <div><b>1 · Big idea</b>Read the one-sentence summary first.</div>
+    <div><b>2 · Picture it</b>Use the comparison and the diagram.</div>
+    <div><b>3 · Worked example</b>Reveal one step at a time. Guess the next step before you tap.</div>
+    <div><b>4 · Quick check</b>Answer it, then tick "I understand this".</div>
+  </div>
+  <div class="section-head"><h2>3-day sprint plan</h2><span class="eyebrow">${T.label}</span></div>
+  <div class="plan">${T.plan.map(p=>`<div><h4>${p[0]}</h4><p>${p[1]}</p></div>`).join("")}</div>
+  <nav class="pnav" aria-label="Jump to pillar">${PORDER.map(p=>{ const idx=notes.map((n,i)=>[n,i]).filter(x=>x[0].p===p); const d=idx.filter(x=>done.has(x[1])).length;
+    return `<a href="#p-${p}" data-jump="${p}">${chip(p)}<small>${d}/${idx.length}</small></a>`; }).join("")}</nav>`;
+  PORDER.forEach((p,pi) => {
+    html += `<section class="pillar" id="p-${p}" data-p="${p}"><div class="ph"><span class="n">Pillar ${pi+1}</span><div><h2>${PILLARS[p].name}</h2><p class="muted">${PILLARS[p].q}</p></div></div>`;
+    notes.forEach((n,i) => {
+      if (n.p !== p) return;
+      const dg = n.diagram ? DIAGRAMS[n.diagram]() : "";
+      const after = DIAGRAM_AFTER_BODY.includes(n.diagram);
+      html += `<article class="note${done.has(i)?" done":""}" id="note-${i}" data-p="${p}">
+        <div class="nhead"><h3>${n.title}</h3><button class="got" data-got="${i}" aria-pressed="${done.has(i)}">${done.has(i)?"✓ I understand this":"I understand this"}</button></div>
+        <p class="bigidea">${n.big}</p>
+        ${n.like?`<div class="like"><span class="lbl">Think of it like</span><span>${n.like}</span></div>`:""}
+        ${after?"":dg}
+        <div class="body">${n.body}</div>
+        ${after?dg:""}
+        ${n.worked?`<div class="worked" data-worked="${i}"><span class="lbl">Worked example</span><p class="wq">${n.worked.q}</p><ol></ol><div class="row"><button class="btn small primary" data-step>Show first step</button><button class="btn small" data-all>Show all steps</button></div></div>`:""}
+        ${n.widget?`<div class="widget" data-w="${n.widget}"></div>`:""}
+        ${n.terms?`<dl class="terms">${n.terms.map(t=>`<dt>${t[0]}</dt><dd>${t[1]}</dd>`).join("")}</dl>`:""}
+        ${n.trap?`<div class="trap"><span class="lbl">Exam trap</span>${n.trap}</div>`:""}
+        ${n.check?`<div class="check" data-check="${i}"><span class="lbl" style="color:var(--pc)">Quick check</span><div class="qtext">${n.check[0]}</div><div class="opts two"></div><div class="whybox"></div></div>`:""}
+      </article>`;
+    });
+    html += `<div class="row"><button class="btn" data-drillp="${p}">Drill ${PILLARS[p].name} questions →</button></div></section>`;
+  });
+  if (state.track === "ls") html += `<div class="trap"><span class="lbl">Heads up</span>One Section B task in the real paper is based on an emerging AI technology theme announced by SIMCC two months before the competition. Ask your teacher what this year's theme is.</div>`;
+  main.innerHTML = html;
+
+  main.querySelectorAll("[data-jump]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); document.getElementById("p-"+a.dataset.jump).scrollIntoView({behavior:"smooth"}); }));
+  main.querySelectorAll("[data-drillp]").forEach(b => b.addEventListener("click", () => { drill.filter = b.dataset.drillp; drill.run = null; setTab("drill"); }));
+  main.querySelectorAll("[data-got]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.got, d = doneSet(); d.has(i) ? d.delete(i) : d.add(i); store.set("done:"+state.track, [...d]);
+    const on = d.has(i); b.setAttribute("aria-pressed", on); b.textContent = on ? "✓ I understand this" : "I understand this";
+    b.closest(".note").classList.toggle("done", on);
+    const p = notes[i].p, idx = notes.map((n,k)=>[n,k]).filter(x=>x[0].p===p);
+    main.querySelector(`[data-jump="${p}"] small`).textContent = `${idx.filter(x=>d.has(x[1])).length}/${idx.length}`;
+    $("#donecount").textContent = countLine(d);
+  }));
+  main.querySelectorAll("[data-worked]").forEach(w => {
+    const steps = notes[+w.dataset.worked].worked.s; let shown = 0;
+    const ol = $("ol", w), bStep = $("[data-step]", w), bAll = $("[data-all]", w);
+    const draw = () => {
+      ol.innerHTML = steps.slice(0, shown).map((s,k)=>`<li class="${k===steps.length-1?"final":""}">${s}</li>`).join("");
+      bStep.hidden = bAll.hidden = shown >= steps.length;
+      bStep.textContent = shown ? `Next step (${shown+1} of ${steps.length})` : "Show first step";
+    };
+    bStep.addEventListener("click", () => { shown++; draw(); if (shown < steps.length) bStep.focus(); });
+    bAll.addEventListener("click", () => { shown = steps.length; draw(); });
+    draw();
+  });
+  main.querySelectorAll("[data-check]").forEach(c => { const n = notes[+c.dataset.check]; mountQuestion(c, prepQ([n.p, ...n.check])); });
+  main.querySelectorAll(".widget").forEach(w => WIDGETS[w.dataset.w](w));
+  main.querySelectorAll("[data-diffusion]").forEach(drawDiffusion);
+  if (state.jump){ const el = document.getElementById(state.jump); state.jump = null; if (el) setTimeout(()=>el.scrollIntoView({behavior:"smooth"}), 30); }
+}
+
+function drawDiffusion(el){
+  let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const N = 48, base = [];
+  for (let y=0;y<N;y++) for (let x=0;x<N;x++){
+    let c;
+    const hill = y > 31 + 5*Math.sin(x/7);
+    const sun = (x-33)**2 + (y-14)**2 < 64;
+    if (sun) c=[250,196,60]; else if (hill) c=[70,150,80]; else { const t=y/N; c=[110+60*t,170+40*t,235]; }
+    base.push(c);
+  }
+  const noise = base.map(()=>[rnd()*255,rnd()*255,rnd()*255]);
+  el.querySelectorAll("canvas").forEach(cv => {
+    const n = 1 - (+cv.dataset.n)/4, ctx = cv.getContext("2d");
+    if (!ctx) return;
+    const img = ctx.createImageData(N,N);
+    base.forEach((c,i)=>{ for(let k=0;k<3;k++) img.data[i*4+k] = c[k]*(1-n) + noise[i][k]*n; img.data[i*4+3]=255; });
+    ctx.putImageData(img,0,0);
+  });
+}
+
+const WIDGETS = {
+  encoder(el){
+    el.innerHTML = `<span class="wt">Try it · letter code</span>
+    <div class="row"><label for="enc-in">Word</label><input id="enc-in" type="text" value="LAOS" maxlength="20"><span class="out" id="enc-out"></span></div>
+    <div class="row"><label for="dec-in">Numbers</label><input id="dec-in" type="text" value="1, 9"><span class="out" id="dec-out"></span></div>`;
+    const enc = () => { $("#enc-out",el).textContent = [...$("#enc-in",el).value.toUpperCase()].filter(c=>/[A-Z]/.test(c)).map(c=>c.charCodeAt(0)-64).join(", ") || "type some letters"; };
+    const dec = () => { $("#dec-out",el).textContent = $("#dec-in",el).value.split(/[^0-9]+/).filter(Boolean).map(n=>{n=+n; return n>=1&&n<=26?String.fromCharCode(64+n):"?";}).join("") || "type some numbers"; };
+    $("#enc-in",el).addEventListener("input",enc); $("#dec-in",el).addEventListener("input",dec); enc(); dec();
+  },
+  neuronUP(el){
+    const ins = [["sun","It is sunny",3],["hw","Homework is done",2],["rain","It is raining",-4]];
+    el.innerHTML = `<span class="wt">Try it · tick the boxes and watch the total (threshold 2)</span>
+    ${ins.map(i=>`<label class="row"><input type="checkbox" id="nu-${i[0]}" ${i[0]!=="rain"?"checked":""}> ${i[1]} <span class="muted mono">weight ${i[2]>0?"+":""}${i[2]}</span></label>`).join("")}
+    <div class="out" id="nu-out"></div>`;
+    const upd = () => {
+      let parts=[], tot=0;
+      ins.forEach(i => { const v = $("#nu-"+i[0],el).checked?1:0; tot += v*i[2]; parts.push(`${v}×(${i[2]})`); });
+      $("#nu-out",el).textContent = `total = ${parts.join(" + ")} = ${tot}\n${tot} ${tot>=2?"≥":"<"} 2  →  ${tot>=2?"YES, play outside":"NO, stay in"}`;
+    };
+    el.querySelectorAll("input").forEach(i=>i.addEventListener("change",upd)); upd();
+  },
+  nextword(el){
+    const up = state.track==="up";
+    const sample = up ? "I like cats . I like dogs . I like cats . my cat likes naps" : "i like tea . i like code . i need tea . you like tea .";
+    el.innerHTML = `<span class="wt">Try it · next-word counter</span>
+    <label for="nw-txt" class="muted">Training text (you can change it)</label>
+    <textarea id="nw-txt" rows="2">${sample}</textarea>
+    <div class="row"><label for="nw-w">Which words come after</label><input id="nw-w" type="text" value="${up?"like":"i"}" style="width:120px"></div>
+    <div class="bars" id="nw-out"></div>`;
+    const upd = () => {
+      const words = $("#nw-txt",el).value.toLowerCase().split(/\s+/).filter(Boolean);
+      const w = $("#nw-w",el).value.trim().toLowerCase();
+      const c = {}; let total = 0;
+      for (let i=0;i<words.length-1;i++) if (words[i]===w){ c[words[i+1]]=(c[words[i+1]]||0)+1; total++; }
+      const rows = Object.entries(c).sort((a,b)=>b[1]-a[1]);
+      $("#nw-out",el).innerHTML = rows.length ? rows.map(([k,v])=>`<div class="barrow"><span class="mono">${esc(k)}</span><span class="track"><span class="fill" style="width:${v/total*100}%"></span></span><span>${v}/${total}</span></div>`).join("") + `<p>Prediction: <b>${esc(rows[0][0])}</b> ${up?"(it appears most often)":`· P(${esc(rows[0][0])} | ${esc(w)}) = ${rows[0][1]}/${total}`}</p>` : `<p class="muted">That word is never followed by anything in the text.</p>`;
+    };
+    el.querySelectorAll("input,textarea").forEach(i=>i.addEventListener("input",upd)); upd();
+  },
+  tokeniser(el){
+    el.innerHTML = `<span class="wt">Try it · type a sentence and watch the IDs</span>
+    <input id="tk-in" type="text" value="The cat sat on the mat." style="width:100%" aria-label="Sentence to tokenise">
+    <div class="toks" id="tk-out"></div><p class="muted" id="tk-ids"></p>`;
+    const upd = () => {
+      const toks = $("#tk-in",el).value.toLowerCase().match(/[a-z0-9']+|[^\sa-z0-9']/g) || [];
+      const v = {}; toks.forEach(t => { if(!(t in v)) v[t] = Object.keys(v).length; });
+      $("#tk-out",el).innerHTML = toks.map(t=>`<span class="tok">${esc(t)}<small>${v[t]}</small></span>`).join("");
+      $("#tk-ids",el).textContent = `${toks.length} tokens · IDs [${toks.map(t=>v[t]).join(", ")}] · vocabulary size ${Object.keys(v).length}`;
+    };
+    $("#tk-in",el).addEventListener("input",upd); upd();
+  },
+  pixels(el){
+    const g = [0,0,0,0,0,0, 0,255,0,0,255,0, 0,0,0,0,0,0, 255,0,0,0,0,255, 0,255,255,255,255,0, 0,0,0,0,0,0];
+    el.innerHTML = `<span class="wt">Try it · tap pixels to switch black (0) and white (255)</span>
+    <div class="row" style="align-items:flex-start;gap:18px"><div class="pgrid" id="px-g"></div><div class="ngrid" id="px-n" aria-label="Pixel values"></div></div>
+    <p class="muted">6 × 6 = 36 pixels = 36 numbers. In colour: 6 × 6 × 3 = 108 numbers.</p>`;
+    const upd = () => {
+      $("#px-g",el).innerHTML = g.map((v,i)=>`<button aria-label="pixel ${i+1}, value ${v}" data-i="${i}" style="background:${v?"#ffffff":"#000000"}"></button>`).join("");
+      $("#px-n",el).innerHTML = g.map(v=>`<span>${v}</span>`).join("");
+      el.querySelectorAll("#px-g button").forEach(b=>b.addEventListener("click",()=>{ const i=+b.dataset.i; g[i]=g[i]?0:255; upd(); el.querySelector(`[data-i="${i}"]`).focus(); }));
+    };
+    upd();
+  },
+  neuronLS(el){
+    const f = [["x1",2],["w1",0.5],["x2",3],["w2",-1],["b",1]];
+    el.innerHTML = `<span class="wt">Try it · neuron calculator (change any number)</span>
+    <div class="row">${f.map(x=>`<label>${x[0]} <input type="number" step="0.1" id="nl-${x[0]}" value="${x[1]}"></label>`).join("")}
+    <label>activation <select id="nl-act"><option value="relu">ReLU</option><option value="step">step</option><option value="sig">sigmoid</option></select></label></div>
+    <div class="out" id="nl-out"></div>`;
+    const upd = () => {
+      const v = k => parseFloat($("#nl-"+k,el).value)||0;
+      const r = n => Math.round(n*1000)/1000;
+      const a1 = v("w1")*v("x1"), a2 = v("w2")*v("x2"), z = a1 + a2 + v("b");
+      const a = $("#nl-act",el).value;
+      const out = a==="relu"?Math.max(0,z):a==="step"?(z>=0?1:0):1/(1+Math.exp(-z));
+      $("#nl-out",el).textContent = `w1·x1 = ${v("w1")} × ${v("x1")} = ${r(a1)}\nw2·x2 = ${v("w2")} × ${v("x2")} = ${r(a2)}\nz = ${r(a1)} + ${r(a2)} + ${v("b")} = ${r(z)}\n${a==="relu"?"ReLU":a==="step"?"step":"sigmoid"}(${r(z)}) = ${r(out)}`;
+    };
+    el.querySelectorAll("input,select").forEach(i=>i.addEventListener("input",upd)); upd();
+  },
+  confusion(el){
+    el.innerHTML = `<span class="wt">Try it · change the counts</span>
+    <div class="cm"><span></span><span class="h">AI said YES</span><span class="h">AI said NO</span>
+    <span class="h">Really YES</span><input type="number" id="cm-tp" value="40" aria-label="TP"><input type="number" id="cm-fn" value="10" aria-label="FN">
+    <span class="h">Really NO</span><input type="number" id="cm-fp" value="5" aria-label="FP"><input type="number" id="cm-tn" value="45" aria-label="TN"></div>
+    <div class="out" id="cm-out"></div>`;
+    const upd = () => {
+      const g = k => Math.max(0, parseFloat($("#cm-"+k,el).value)||0);
+      const tp=g("tp"),fp=g("fp"),fn=g("fn"),tn=g("tn"),n=tp+fp+fn+tn;
+      const pc = x => isFinite(x) ? (Math.round(x*1000)/10)+"%" : "n/a";
+      $("#cm-out",el).textContent = `total = ${n} · actual positives = TP + FN = ${tp+fn}\naccuracy  = (${tp} + ${tn}) / ${n} = ${pc((tp+tn)/n)}\nprecision = ${tp} / (${tp} + ${fp}) = ${pc(tp/(tp+fp))}\nrecall    = ${tp} / (${tp} + ${fn}) = ${pc(tp/(tp+fn))}`;
+    };
+    el.querySelectorAll("input").forEach(i=>i.addEventListener("input",upd)); upd();
+  }
+};
+
+/* ================= FLASHCARDS ================= */
+const cards = { deck:null, i:0, flipped:false, known:0, p:"all" };
+function buildDeck(){
+  const all = [];
+  NOTES[state.track].forEach(n => (n.terms||[]).forEach(t => { if(!all.some(x=>x.t===t[0])) all.push({t:t[0], d:t[1], p:n.p}); }));
+  return shuffle(all.filter(c=>cards.p==="all"||c.p===cards.p));
+}
+function renderCards(){
+  if (!cards.deck){ cards.deck = buildDeck(); cards.i = 0; cards.flipped = false; cards.known = 0; }
+  const deck = cards.deck;
+  let html = `<div class="section-head"><h2>Flashcards</h2><span class="muted">Say the meaning out loud, then flip to check.</span></div>
+  <div class="filters" role="group" aria-label="Pillar filter"><button data-cp="all" aria-pressed="${cards.p==="all"}">All terms</button>${PORDER.map(p=>`<button data-cp="${p}" aria-pressed="${cards.p===p}">${chip(p)}</button>`).join("")}</div>`;
+  if (!deck.length || cards.i >= deck.length){
+    html += `<div class="panel"><span class="lbl">Deck finished</span><div class="score">${cards.known}</div><p>terms you knew the first time. Cards you marked "Again later" came back until you knew them.</p><div class="row"><button class="btn primary" id="cd-new">Shuffle and start again</button></div></div>`;
+    main.innerHTML = html;
+  } else {
+    const c = deck[cards.i];
+    html += `<div class="progress" style="margin-bottom:12px"><div style="width:${cards.i/deck.length*100}%"></div></div>
+    <p class="qnum" style="margin-bottom:8px">Card ${cards.i+1} of ${deck.length}</p>
+    <button class="card" data-p="${c.p}" id="cd-card" aria-live="polite">${chip(c.p)}<span class="term">${c.t}</span>${cards.flipped?`<span class="def">${c.d}</span>`:`<span class="tap">tap to flip</span>`}</button>
+    <div class="row" style="margin-top:14px;justify-content:center">${cards.flipped?`<button class="btn" id="cd-again">Again later</button><button class="btn primary" id="cd-got">I knew it</button>`:`<button class="btn primary" id="cd-flip">Flip card</button>`}</div>`;
+    main.innerHTML = html;
+    const flip = () => { cards.flipped = true; renderCards(); $("#cd-got")?.focus(); };
+    $("#cd-card").addEventListener("click", () => { if(!cards.flipped) flip(); });
+    $("#cd-flip")?.addEventListener("click", flip);
+    $("#cd-got")?.addEventListener("click", () => { if(!c.again) cards.known++; cards.i++; cards.flipped=false; renderCards(); });
+    $("#cd-again")?.addEventListener("click", () => { c.again = true; deck.push(c); cards.i++; cards.flipped=false; renderCards(); });
+  }
+  main.querySelectorAll("[data-cp]").forEach(b=>b.addEventListener("click",()=>{ cards.p=b.dataset.cp; cards.deck=null; renderCards(); }));
+  $("#cd-new")?.addEventListener("click",()=>{ cards.deck=null; renderCards(); });
+}
+
+/* ================= DRILL ================= */
+const drill = { filter:"all", run:null };
+function statsKey(){ return "stats:"+state.track; }
+function revise(p){ state.jump = "p-"+p; state.tab = "learn"; render(); }
+function renderDrill(){
+  const bank = MCQ[state.track];
+  const stats = store.get(statsKey(), {});
+  const newRun = () => { const pool = bank.filter(q=>drill.filter==="all"||q[0]===drill.filter); drill.run = {qs: shuffle(pool).slice(0,10).map(prepQ), i:0, right:0, missed:{}}; renderDrill(); };
+  if (!drill.run){
+    const counts = p => bank.filter(q=>p==="all"||q[0]===p).length;
+    main.innerHTML = `<div class="section-head"><h2>Quick drill</h2><span class="muted">Instant marking and a reason for every answer.</span></div>
+    <div class="filters" role="group" aria-label="Pillar filter">
+      <button data-f="all" aria-pressed="${drill.filter==="all"}">All pillars (${bank.length})</button>
+      ${PORDER.map(p=>`<button data-f="${p}" aria-pressed="${drill.filter===p}">${chip(p)} <span class="muted">${counts(p)}</span></button>`).join("")}
+    </div>
+    <div class="row" style="margin-bottom:22px"><button class="btn primary" id="go">Start ${Math.min(10,counts(drill.filter))}-question drill</button></div>
+    <div class="panel"><h3>Your weak spots</h3>
+    <div class="bars">${PORDER.map(p=>{ const s=stats[p]||{r:0,t:0}; const pct=s.t?Math.round(s.r/s.t*100):0;
+      return `<div class="barrow" style="grid-template-columns:150px minmax(0,1fr) 96px"><span>${chip(p)}</span><span class="track"><span class="fill" style="width:${pct}%;background:var(--p-${p})"></span></span><span>${s.t?pct+"% of "+s.t:"not tried"}</span></div>`; }).join("")}</div>
+    <p class="muted">Saved on this device. Revise and drill anything below 80% again.</p>
+    <div class="row"><button class="btn" id="reset">Clear my scores</button></div></div>`;
+    main.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>{drill.filter=b.dataset.f; renderDrill();}));
+    $("#go").addEventListener("click",newRun);
+    $("#reset").addEventListener("click",()=>{ store.set(statsKey(),{}); renderDrill(); });
+    return;
+  }
+  const r = drill.run;
+  if (r.i >= r.qs.length){
+    const weak = Object.keys(r.missed);
+    main.innerHTML = `<div class="panel"><span class="lbl">Drill complete</span><div class="score">${r.right}/${r.qs.length}</div>
+    <p>${r.right===r.qs.length?"Perfect! Move on to another pillar or try the mock.":r.right>=8?"Strong. Read the explanations you missed, then try another set.":"Revise the notes below, then drill again."}</p>
+    ${weak.length?`<p class="lbl">Revise these</p><div class="row">${weak.map(p=>`<button class="btn" data-rev="${p}">${chip(p)} <span class="muted">${r.missed[p]} missed</span></button>`).join("")}</div>`:""}
+    <div class="row"><button class="btn primary" id="again">New drill</button><button class="btn" id="back">Change pillar</button></div></div>`;
+    $("#again").addEventListener("click",newRun);
+    $("#back").addEventListener("click",()=>{ drill.run=null; renderDrill(); });
+    main.querySelectorAll("[data-rev]").forEach(b=>b.addEventListener("click",()=>revise(b.dataset.rev)));
+    return;
+  }
+  const q = r.qs[r.i];
+  main.innerHTML = `<div class="progress" style="margin-bottom:14px"><div style="width:${r.i/r.qs.length*100}%"></div></div>
+  <div class="qcard" id="dq"><div class="qtop"><span class="qnum" id="dqn">Question ${r.i+1} of ${r.qs.length} · score ${r.right}</span>${chip(q.p)}</div>
+  <div class="qtext">${q.q}</div><div class="opts"></div><div class="whybox"></div><div class="row" id="after" hidden></div></div>
+  <div class="row"><button class="btn" id="quit">End drill</button></div>`;
+  mountQuestion($("#dq"), q, ok => {
+    if (ok) r.right++; else r.missed[q.p] = (r.missed[q.p]||0)+1;
+    const st = store.get(statsKey(),{}); st[q.p] = st[q.p]||{r:0,t:0}; st[q.p].t++; if(ok) st[q.p].r++; store.set(statsKey(),st);
+    const a = $("#after"); a.hidden = false;
+    a.innerHTML = `<button class="btn primary" id="next">${r.i+1<r.qs.length?"Next question":"See score"}</button>${ok?"":`<button class="btn" id="rev">Revise ${PILLARS[q.p].name} notes</button>`}`;
+    $("#dqn").textContent = `Question ${r.i+1} of ${r.qs.length} · score ${r.right}`;
+    $("#next").addEventListener("click",()=>{ r.i++; renderDrill(); window.scrollTo({top:0}); });
+    $("#rev")?.addEventListener("click",()=>revise(q.p));
+    $("#next").focus();
+  });
+  $("#quit").addEventListener("click",()=>{ drill.run=null; renderDrill(); });
+}
+
+/* ---------- MOCK ---------- */
+const mock = { run:null };
+function renderMock(){
+  const T = TRACKS[state.track];
+  if (!mock.run || mock.run.track!==state.track){
+    mock.run = null;
+    const tasks = TASKS[state.track];
+    main.innerHTML = `<div class="panel"><span class="eyebrow">Full practice paper · ${T.label}</span><h2>Mock exam</h2>
+    <p>${T.minutes} minutes. Section A: ${T.mcqCount} multiple-choice questions, ${T.mcqMarks} marks each (${T.mcqCount*T.mcqMarks} marks). Section B: ${tasks.length} structured tasks (${tasks.reduce((s,t)=>s+t.marks,0)} marks). No marks lost for wrong answers, so answer everything.</p>
+    <p class="muted">Section A is marked automatically. For Section B, write your answers, then tick the marking points you earned. ${state.track==="ls"?"Keep Python open for Task 1(c).":""}</p>
+    <div class="trap"><span class="lbl">Exam tips</span>Do Section A first, in about ${Math.round(T.minutes*0.4)} minutes. In Section B show your working: marks are given for each step, not just the final answer.</div>
+    <div class="row"><button class="btn primary" id="start">Start the ${T.minutes}-minute paper</button></div></div>`;
+    $("#start").addEventListener("click",()=>{
+      mock.run = {track:state.track, qs:shuffle(MCQ[state.track]).slice(0,T.mcqCount).map(prepQ), picks:{}, answers:{}, ticks:{}, end:Date.now()+T.minutes*60000, submitted:false};
+      renderMock(); window.scrollTo({top:0});
+    });
+    return;
+  }
+  const m = mock.run, tasks = TASKS[state.track];
+  const mcqScore = () => m.qs.reduce((s,q,i)=>s+(m.picks[i]===q.ans?T.mcqMarks:0),0);
+  const bScore = () => Object.values(m.ticks).reduce((s,v)=>s+v,0);
+  let html = `<div class="timer"><span class="clock" id="clock">--:--</span><span id="tstat">${m.submitted?"Paper submitted":"Section A answered: <b id='ans'>0</b>/"+m.qs.length}</span>
+    ${m.submitted?`<button class="btn" id="new">New paper</button>`:`<button class="btn" id="submit">Submit paper</button>`}</div>`;
+  if (m.submitted){
+    html += `<div class="panel"><span class="eyebrow">Your result</span><div class="score"><span id="tot">${mcqScore()+bScore()}</span>/100</div>
+    <p>Section A: <b>${mcqScore()}</b>/${m.qs.length*T.mcqMarks} · Section B: <b id="bsc">${bScore()}</b>/${tasks.reduce((s,t)=>s+t.marks,0)} (tick the marking points below)</p>
+    <div class="bars">${PORDER.map(p=>{ const qs=m.qs.map((q,i)=>[q,i]).filter(x=>x[0].p===p); if(!qs.length) return ""; const r=qs.filter(x=>m.picks[x[1]]===x[0].ans).length;
+      return `<div class="barrow" style="grid-template-columns:150px 1fr 60px"><span>${chip(p)}</span><span class="track"><span class="fill" style="display:block;width:${r/qs.length*100}%;background:var(--p-${p})"></span></span><span>${r}/${qs.length}</span></div>`; }).join("")}</div></div>`;
+  }
+  html += `<div class="sec">Section A · Multiple choice</div>`;
+  m.qs.forEach((q,i)=>{
+    const pk = m.picks[i];
+    html += `<div class="qcard"><div class="qtop"><span class="qnum">Q${i+1} · ${T.mcqMarks} marks</span>${m.submitted?chip(q.p):""}</div><div class="qtext">${q.q}</div>
+    <div class="opts">${q.opts.map((o,k)=>{ let cls=""; if(m.submitted){ if(k===q.ans) cls="right"; else if(k===pk) cls="wrong"; } else if(k===pk) cls="sel";
+      return `<button class="opt ${cls}" data-q="${i}" data-k="${k}" ${m.submitted?"disabled":""} aria-pressed="${k===pk}"><span class="k">${LETTERS[k]}</span><span>${o}</span></button>`; }).join("")}</div>
+    ${m.submitted?`<div class="why"><b>${pk===q.ans?"Correct.":pk===undefined?"Not answered.":"Not quite."}</b>${q.why}</div>`:""}</div>`;
+  });
+  html += `<div class="sec">Section B · Structured tasks</div>`;
+  tasks.forEach((t,ti)=>{
+    html += `<div class="task"><div class="qtop"><h3>${t.title}</h3><span class="qnum">${t.marks} marks</span></div><div class="scenario">${t.scenario}</div>`;
+    t.parts.forEach((p,pi)=>{
+      const key = ti+"-"+pi;
+      html += `<div class="part"><span class="pl">${p.label} ${p.q} <span class="muted">[${p.marks}]</span></span>
+      <textarea rows="${p.label==="(c)"&&ti===0&&state.track==="ls"?6:3}" id="ans-${key}" data-key="${key}" ${m.submitted?"readonly":""} aria-label="Answer ${p.label}">${esc(m.answers[key]||"")}</textarea>`;
+      if (m.submitted){
+        html += `<div class="mp"><span class="eyebrow">Marking points · tick what you earned</span>${p.mps.map((mp,mi)=>`<label><input type="checkbox" data-tick="${key}-${mi}" data-pts="${mp[0]}" ${m.ticks[key+"-"+mi]?"checked":""}><span><b>${mp[0]}</b> · ${mp[1]}</span></label>`).join("")}</div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  main.innerHTML = html;
+
+  const ansCount = () => { const el=$("#ans"); if(el) el.textContent = Object.keys(m.picks).length; };
+  ansCount();
+  main.querySelectorAll(".opt:not(:disabled)").forEach(b=>b.addEventListener("click",()=>{
+    const qi=+b.dataset.q; m.picks[qi]=+b.dataset.k;
+    main.querySelectorAll(`[data-q="${qi}"]`).forEach(o=>{ const s=+o.dataset.k===m.picks[qi]; o.classList.toggle("sel",s); o.setAttribute("aria-pressed",s); });
+    ansCount();
+  }));
+  main.querySelectorAll("textarea[data-key]").forEach(t=>t.addEventListener("input",()=>{ m.answers[t.dataset.key]=t.value; }));
+  main.querySelectorAll("[data-tick]").forEach(c=>c.addEventListener("change",()=>{
+    m.ticks[c.dataset.tick] = c.checked ? +c.dataset.pts : 0;
+    $("#bsc").textContent = bScore(); $("#tot").textContent = mcqScore()+bScore();
+  }));
+  const submit = () => { m.submitted = true; renderMock(); window.scrollTo({top:0}); };
+  $("#submit")?.addEventListener("click",()=>{
+    const left = m.qs.length - Object.keys(m.picks).length;
+    const b = $("#submit");
+    if (left>0 && b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent=`${left} unanswered · submit anyway`; return; }
+    submit();
+  });
+  $("#new")?.addEventListener("click",()=>{ mock.run=null; renderMock(); });
+
+  const tick = () => {
+    const c = $("#clock"); if (!c) return;
+    if (m.submitted){ c.textContent = "Done"; return; }
+    const s = Math.max(0, Math.round((m.end-Date.now())/1000));
+    c.textContent = `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+    c.classList.toggle("low", s<300);
+    if (s<=0){ clearInterval(mockTimer); mockTimer=null; submit(); }
+  };
+  tick(); if (!m.submitted) mockTimer = setInterval(tick, 1000);
+}
+
+/* ---------- LAB ---------- */
+let skulptReady = null;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=()=>rej(new Error("Could not load "+src)); document.head.appendChild(s); }); }
+function loadSkulpt(){
+  if (!skulptReady) skulptReady = loadScript("https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js")
+    .then(()=>loadScript("https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"))
+    .catch(e=>{ skulptReady=null; throw e; });
+  return skulptReady;
+}
+function runPy(code){
+  let out = "";
+  Sk.configure({
+    output: t => { out += t; },
+    read: f => { if (Sk.builtinFiles===undefined || Sk.builtinFiles.files[f]===undefined) throw "File not found: '"+f+"'"; return Sk.builtinFiles.files[f]; },
+    __future__: Sk.python3, execLimit: 5000, yieldLimit: 100
+  });
+  return Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>", false, code, true))
+    .then(()=>({out, err:null}), e=>({out, err: (e && e.toString) ? e.toString().replace("TimeLimitError","Your code ran too long (infinite loop?). TimeLimitError") : String(e)}));
+}
+const labCode = store.get("labs", {});
+function renderLab(){
+  let html = `<div class="section-head"><h2>Python lab</h2><span class="muted">Python runs in your browser. Run to see output, Check to test your functions.</span></div>
+  <div class="trap" style="margin-bottom:16px"><span class="lbl">On the day</span>The real paper uses Python 3 in Jupyter Notebook or Google Colab on a laptop. These labs use plain Python with no extra libraries, which works in both.</div>`;
+  LABS.forEach((L,i)=>{
+    html += `<section class="lab"><div class="qtop"><h3>${L.title}</h3><span class="eyebrow">${L.concept}</span></div><p>${L.brief}</p>
+    <textarea class="editor" id="code-${i}" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Python code for ${esc(L.title)}">${esc(labCode[i] ?? L.starter)}</textarea>
+    <div class="row"><button class="btn primary" data-run="${i}">Run</button><button class="btn" data-check="${i}">Check</button><button class="btn" data-sol="${i}">Show solution</button><button class="btn" data-reset="${i}">Reset</button></div>
+    <div class="result" id="res-${i}"></div></section>`;
+  });
+  main.innerHTML = html;
+  main.querySelectorAll(".editor").forEach(ed=>{
+    ed.addEventListener("keydown",e=>{
+      if (e.key==="Tab" && !e.shiftKey){ e.preventDefault(); const s=ed.selectionStart; ed.setRangeText("    ", s, ed.selectionEnd, "end"); ed.dispatchEvent(new Event("input")); }
+    });
+    ed.addEventListener("input",()=>{ labCode[ed.id.split("-")[1]] = ed.value; store.set("labs", labCode); });
+  });
+  const res = (i, html) => { $("#res-"+i).innerHTML = html; };
+  const go = (i, withTests) => {
+    res(i, `<span class="loading">Starting Python…</span>`);
+    loadSkulpt().then(()=>{
+      const code = $("#code-"+i).value;
+      const full = withTests ? code + "\n" + TEST_HELPER + "\n" + LABS[i].tests : code;
+      return runPy(full).then(({out, err})=>{
+        if (withTests){
+          const lines = out.split("\n");
+          const tests = lines.filter(l=>/^(PASS|FAIL): /.test(l));
+          const passed = tests.filter(l=>l.startsWith("PASS")).length;
+          let r = tests.length ? `<div class="${passed===tests.length?"pass":"fail"}">${passed}/${tests.length} checks passed${passed===tests.length?". Well done!":""}</div>` + tests.map(l=>`<div class="${l.startsWith("PASS")?"pass":"fail"}">${l.startsWith("PASS")?"✓":"✗"} ${esc(l.slice(6))}</div>`).join("") : "";
+          if (err) r += `<div class="out fail">${esc(err)}</div>`;
+          res(i, r || `<div class="out">No output</div>`);
+        } else {
+          res(i, `<div class="out">${esc(out || "(no output)")}</div>${err?`<div class="out fail">${esc(err)}</div>`:""}`);
+        }
+      });
+    }).catch(e=>res(i, `<div class="out fail">${esc(e.message)}. Check your internet connection and try again.</div>`));
+  };
+  main.querySelectorAll("[data-run]").forEach(b=>b.addEventListener("click",()=>go(+b.dataset.run,false)));
+  main.querySelectorAll("[data-check]").forEach(b=>b.addEventListener("click",()=>go(+b.dataset.check,true)));
+  main.querySelectorAll("[data-sol]").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.sol;
+    if (b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent="Replace my code with the solution?"; return; }
+    const ed=$("#code-"+i); ed.value=LABS[i].solution; labCode[i]=ed.value; store.set("labs",labCode); b.dataset.sure=""; b.textContent="Show solution";
+  }));
+  main.querySelectorAll("[data-reset]").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.reset;
+    if (b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent="Erase my code?"; return; }
+    const ed=$("#code-"+i); ed.value=LABS[i].starter; delete labCode[i]; store.set("labs",labCode); b.dataset.sure=""; b.textContent="Reset"; res(i,"");
+  }));
+  loadSkulpt().catch(()=>{});
+}
+
+
+
+render();
+</script>
+
+</body></html>
